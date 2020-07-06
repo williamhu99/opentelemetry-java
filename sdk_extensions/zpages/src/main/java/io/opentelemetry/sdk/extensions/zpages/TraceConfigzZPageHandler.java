@@ -16,13 +16,26 @@
 
 package io.opentelemetry.sdk.extensions.zpages;
 
+import io.opentelemetry.sdk.trace.config.TraceConfig;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Formatter;
+import java.util.Locale;
 import java.util.Map;
 
 final class TraceConfigzZPageHandler extends ZPageHandler {
   private static final String TRACE_CONFIGZ_URL = "/traceconfigz";
+  private static final String QUERY_STRING_SAMPLING_PROBABILITY = "samplingprobability";
+  private static final String QUERY_STRING_MAX_NUM_OF_ATTRIBUTES = "maxnumofattributes";
+  private static final String QUERY_STRING_MAX_NUM_OF_EVENTS = "maxnumbofevents";
+  private static final String QUERY_STRING_MAX_NUM_OF_LINKS = "maxnumoflinks";
+  private static final String QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT =
+      "maxnumofattributesperevent";
+  private static final String QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK =
+      "maxnumofattributesperlink";
+
+  TraceConfigzZPageHandler() {}
 
   @Override
   public String getUrlPath() {
@@ -41,6 +54,62 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</style>");
   }
 
+  private static void emitChangeTableRow(
+      PrintStream out, Formatter formatter, String rowName, String inputName, String defaultValue) {
+    out.print("<tr>");
+    formatter.format("<td>%s</td>", rowName);
+    formatter.format("<td><input type=text size=15 name=%s value=\"\" /></td>", inputName);
+    formatter.format("<td>(%s)</td>", defaultValue);
+    out.print("</tr>");
+  }
+
+  private static void emitChangeTable(PrintStream out, Formatter formatter) {
+    out.print("<table style=\"border-spacing: 0; border: 1px solid #363636;\">");
+    out.print("<tr class=\"bg-color\">");
+    out.print("<th colspan=3 class=\"header-text\"><b>Permanently change</b></th>");
+    emitChangeTableRow(
+        out,
+        formatter,
+        "SamplingProbability to",
+        QUERY_STRING_SAMPLING_PROBABILITY,
+        "defaultValue");
+    emitChangeTableRow(
+        out,
+        formatter,
+        "MaxNumberOfAttributes to",
+        QUERY_STRING_MAX_NUM_OF_ATTRIBUTES,
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributes()));
+    emitChangeTableRow(
+        out,
+        formatter,
+        "MaxNumberOfEvents to",
+        QUERY_STRING_MAX_NUM_OF_EVENTS,
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfEvents()));
+    emitChangeTableRow(
+        out,
+        formatter,
+        "MaxNumberOfLinks to",
+        QUERY_STRING_MAX_NUM_OF_LINKS,
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfLinks()));
+    emitChangeTableRow(
+        out,
+        formatter,
+        "MaxNumberOfAttributesPerEvent to",
+        QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT,
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent()));
+    emitChangeTableRow(
+        out,
+        formatter,
+        "MaxNumberOfAttributesPerLink to",
+        QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK,
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink()));
+  }
+
+  private static void emitActiveTable(PrintStream out, Formatter formatter) {
+    out.print("");
+    formatter.format("");
+  }
+
   /**
    * Emits HTML body content to the {@link PrintStream} {@code out}. Content emitted by this
    * function should be enclosed by <body></body> tag.
@@ -50,7 +119,18 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    */
   private static void emitHtmlBody(Map<String, String> queryMap, PrintStream out)
       throws UnsupportedEncodingException {
-    out.print(queryMap.toString());
+    out.print(
+        "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
+            + ZPageLogo.logoBase64
+            + "\" />");
+    out.print("<h1>Trace Configuration</h1>");
+    Formatter formatter = new Formatter(out, Locale.US);
+    emitChangeTable(out, formatter);
+    // Button for submit
+    // Button for restore default
+    emitActiveTable(out, formatter);
+    // deal with query map
+    queryMap.toString();
   }
 
   @Override
