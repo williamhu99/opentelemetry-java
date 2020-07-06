@@ -32,6 +32,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   /**
    * Emits CSS styles to the {@link PrintStream} {@code out}. Content emited by this function should
    * be enclosed by <head></head> tag.
+   *
    * @param out the {@link PrintStream} {@code out}.
    */
   private static void emitHtmlStyle(PrintStream out) {
@@ -41,26 +42,34 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   /**
-   * Emits HTML body content to the {@link PrintStream} {@code out}. Content emitted by this function
-   * should be enclosed by <body></body> tag.
+   * Emits HTML body content to the {@link PrintStream} {@code out}. Content emitted by this
+   * function should be enclosed by <body></body> tag.
+   *
    * @param queryMap the map containing URL query parameters
    * @param out the {@link PrintStream} {@code out}.
    */
-  private void emitHtmlBody(Map<String, String> queryMap, PrintStream out) throws UnsupportedEncodingException {
-
+  private static void emitHtmlBody(Map<String, String> queryMap, PrintStream out)
+      throws UnsupportedEncodingException {
+    out.print(queryMap.toString());
   }
 
   @Override
   public void emitHtml(Map<String, String> queryMap, OutputStream outputStream) {
     // PrintStream for emiting HTML contents
-    try (PrintStream out = new PrintStream(outputStream, /* autoFlush= */false, "UTF-8")){
+    try (PrintStream out = new PrintStream(outputStream, /* autoFlush= */ false, "UTF-8")) {
       out.print("<!DOCTYPE html>");
       out.print("<html lang=\"en\">");
       out.print("<head>");
       out.print("<meta charset=\"UTF-8\">");
-      out.print("<link rel=\"shortcut icon\" href=\"data:image/png;base64,"+ZPageLogo.faviconBase64+"\" type=\"image/png\">");
-      out.print("<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\"" + "rel=\"stylesheet\">");
-      out.print("<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
+      out.print(
+          "<link rel=\"shortcut icon\" href=\"data:image/png;base64,"
+              + ZPageLogo.faviconBase64
+              + "\" type=\"image/png\">");
+      out.print(
+          "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
+              + "rel=\"stylesheet\">");
+      out.print(
+          "<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
       out.print("<title>TraceConfigZ</title>");
       emitHtmlStyle(out);
       out.print("</head>");
