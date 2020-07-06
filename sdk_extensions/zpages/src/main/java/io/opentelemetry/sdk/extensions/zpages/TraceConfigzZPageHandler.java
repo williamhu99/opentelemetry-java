@@ -34,6 +34,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       "maxnumofattributesperevent";
   private static final String QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK =
       "maxnumofattributesperlink";
+  // Background color used for zebra striping rows of summary table
+  private static final String ZEBRA_STRIPE_COLOR = "#e6e6e6";
 
   TraceConfigzZPageHandler() {}
 
@@ -44,7 +46,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
 
   /**
    * Emits CSS styles to the {@link PrintStream} {@code out}. Content emited by this function should
-   * be enclosed by <head></head> tag.
+   * be enclosed by <head></head> tag. s
    *
    * @param out the {@link PrintStream} {@code out}.
    */
@@ -55,54 +57,80 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   private static void emitChangeTableRow(
-      PrintStream out, Formatter formatter, String rowName, String inputName, String defaultValue) {
-    out.print("<tr>");
+      PrintStream out,
+      Formatter formatter,
+      String rowName,
+      String inputName,
+      String defaultValue,
+      boolean zebraStripe) {
+    if (zebraStripe) {
+      formatter.format("<tr style=\"background-color: %s;\">", ZEBRA_STRIPE_COLOR);
+    } else {
+      out.print("<tr>");
+    }
     formatter.format("<td>%s</td>", rowName);
-    formatter.format("<td><input type=text size=15 name=%s value=\"\" /></td>", inputName);
-    formatter.format("<td>(%s)</td>", defaultValue);
+    formatter.format(
+        "<td class=\"border-left-dark\"><input type=text size=15 name=%s value=\"\" /></td>",
+        inputName);
+    formatter.format("<td class=\"border-left-dark\">(%s)</td>", defaultValue);
     out.print("</tr>");
   }
 
   private static void emitChangeTable(PrintStream out, Formatter formatter) {
+    boolean zebraStripe = false;
     out.print("<table style=\"border-spacing: 0; border: 1px solid #363636;\">");
     out.print("<tr class=\"bg-color\">");
-    out.print("<th colspan=3 class=\"header-text\"><b>Permanently change</b></th>");
+    out.print(
+        "<th colspan=3 class=\"header-text\" style=\"font-size: 16px;\">"
+            + "<b>Permanently change</b></th>");
     emitChangeTableRow(
         out,
         formatter,
         "SamplingProbability to",
         QUERY_STRING_SAMPLING_PROBABILITY,
-        "defaultValue");
+        "defaultValue",
+        zebraStripe);
+    zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfAttributes to",
         QUERY_STRING_MAX_NUM_OF_ATTRIBUTES,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributes()));
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributes()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfEvents to",
         QUERY_STRING_MAX_NUM_OF_EVENTS,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfEvents()));
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfEvents()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfLinks to",
         QUERY_STRING_MAX_NUM_OF_LINKS,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfLinks()));
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfLinks()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfAttributesPerEvent to",
         QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent()));
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfAttributesPerLink to",
         QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink()));
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink()),
+        zebraStripe);
+    out.print("</table>");
   }
 
   private static void emitActiveTable(PrintStream out, Formatter formatter) {
@@ -125,14 +153,14 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
             + "\" />");
     out.print("<h1>Trace Configuration</h1>");
     Formatter formatter = new Formatter(out, Locale.US);
-    out.print("<form action=\"" + TRACE_CONFIGZ_URL + "\" method=\"post\">");
+    out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
     emitChangeTable(out, formatter);
     // Button for submit
-    out.print("<button type=\"submit\" value=\"Submit\">Submit</button>");
+    out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Submit</button>");
     out.print("</form>");
     // Button for restore default
-    out.print("<form action=\"" + TRACE_CONFIGZ_URL + "\" method=\"post\">");
-    out.print("<button type=\"submit\" value=\"Submit\">Restore Default</button>");
+    out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"post\">");
+    out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
     emitActiveTable(out, formatter);
     // deal with query map

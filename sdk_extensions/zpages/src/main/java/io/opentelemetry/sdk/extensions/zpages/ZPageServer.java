@@ -71,6 +71,8 @@ public final class ZPageServer {
   private static final ZPageHandler tracezZPageHandler =
       new TracezZPageHandler(tracezDataAggregator);
 
+  private static final ZPageHandler traceConfigzZPageHandler = new TraceConfigzZPageHandler();
+
   private static final Object mutex = new Object();
   private static final AtomicBoolean isTracezSpanProcesserAdded = new AtomicBoolean(false);
 
@@ -104,6 +106,11 @@ public final class ZPageServer {
     server.createContext(tracezZPageHandler.getUrlPath(), new ZPageHttpHandler(tracezZPageHandler));
   }
 
+  static void registerTraceConfigzZPageHandler(HttpServer server) {
+    server.createContext(
+        traceConfigzZPageHandler.getUrlPath(), new ZPageHttpHandler(traceConfigzZPageHandler));
+  }
+
   /**
    * Registers all zPages to the given {@link HttpServer} {@code server}.
    *
@@ -112,6 +119,7 @@ public final class ZPageServer {
   public static void registerAllPagesToHttpServer(HttpServer server) {
     // For future zPages, register them to the server in here
     registerTracezZPageHandler(server);
+    registerTraceConfigzZPageHandler(server);
   }
 
   /** Method for stopping the {@link HttpServer} {@code server}. */
