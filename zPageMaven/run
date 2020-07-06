@@ -1,0 +1,8 @@
+cp ../sdk_extensions/zpages/build/libs/opentelemetry-sdk-extension-zpages-0.6.0-SNAPSHOT.jar ./
+mvn install:install-file -Dfile=opentelemetry-sdk-0.6.0-SNAPSHOT.jar -DgroupId=io.opentelemetry -DartifactId=opentelemetry-sdk -Dversion=0.6.0-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=opentelemetry-context-prop-0.6.0-SNAPSHOT.jar -DgroupId=io.opentelemetry -DartifactId=opentelemetry-context-prop -Dversion=0.6.0-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=opentelemetry-exporters-logging-0.6.0-SNAPSHOT.jar -DgroupId=io.opentelemetry -DartifactId=opentelemetry-exporters-logging -Dversion=0.6.0-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=opentelemetry-sdk-0.6.0-SNAPSHOT.jar -DgroupId=io.opentelemetry -DartifactId=opentelemetry-sdk -Dversion=0.6.0-SNAPSHOT -Dpackaging=jar
+mvn install:install-file -Dfile=opentelemetry-sdk-extension-zpages-0.6.0-SNAPSHOT.jar -DgroupId=io.opentelemetry -DartifactId=opentelemetry-sdk-extension-zpages -Dversion=0.6.0-SNAPSHOT -Dpackaging=jar
+mvn package compile
+mvn exec:java -Dexec.mainClass=com.mycompany.otelexample.App
