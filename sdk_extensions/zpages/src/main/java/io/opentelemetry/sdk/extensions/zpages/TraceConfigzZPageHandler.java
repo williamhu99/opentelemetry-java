@@ -125,9 +125,15 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
             + "\" />");
     out.print("<h1>Trace Configuration</h1>");
     Formatter formatter = new Formatter(out, Locale.US);
+    out.print("<form action=\"" + TRACE_CONFIGZ_URL + "\" method=\"post\">");
     emitChangeTable(out, formatter);
     // Button for submit
+    out.print("<button type=\"submit\" value=\"Submit\">Submit</button>");
+    out.print("</form>");
     // Button for restore default
+    out.print("<form action=\"" + TRACE_CONFIGZ_URL + "\" method=\"post\">");
+    out.print("<button type=\"submit\" value=\"Submit\">Restore Default</button>");
+    out.print("</form>");
     emitActiveTable(out, formatter);
     // deal with query map
     queryMap.toString();
