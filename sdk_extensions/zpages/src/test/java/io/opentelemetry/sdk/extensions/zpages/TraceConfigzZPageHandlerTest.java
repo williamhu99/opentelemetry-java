@@ -18,6 +18,8 @@ package io.opentelemetry.sdk.extensions.zpages;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.Collections;
@@ -39,7 +41,9 @@ public final class TraceConfigzZPageHandlerTest {
     String maxNumOfAttributesPerEvent = "maxnumofattributesperevent";
     String maxNumOfAttributesPerLink = "maxnumofattributesperlink";
 
-    TraceConfigzZPageHandler traceConfigzZPageHandler = new TraceConfigzZPageHandler();
+    TracerSdkProvider tracerProvidoer = OpenTelemetrySdk.getTracerProvider();
+    TraceConfigzZPageHandler traceConfigzZPageHandler =
+        new TraceConfigzZPageHandler(tracerProvidoer.getActiveTraceConfig());
     Map<String, String> queryMap = Collections.emptyMap();
     traceConfigzZPageHandler.emitHtml(queryMap, output);
 

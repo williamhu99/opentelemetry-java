@@ -36,8 +36,11 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       "maxnumofattributesperlink";
   // Background color used for zebra striping rows in table
   private static final String ZEBRA_STRIPE_COLOR = "#e6e6e6";
+  private final TraceConfig traceConfig;
 
-  TraceConfigzZPageHandler() {}
+  TraceConfigzZPageHandler(TraceConfig traceConfig) {
+    this.traceConfig = traceConfig;
+  }
 
   @Override
   public String getUrlPath() {
@@ -62,7 +65,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    *
    * @param out the {@link PrintStream} {@code out}.
    * @param formatter a {@link Formatter} for formatting HTML expressions.
-   * @param rowName the parameter name the row corresponds to.
+   * @param paramName the parameter name the row corresponds to.
    * @param inputName the input element name (this will be used as URL query parameter).
    * @param defaultValue the default value of the corresponding parameter.
    * @param zebraStripe the boolean for zebraStriping rows.
@@ -70,7 +73,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   private static void emitChangeTableRow(
       PrintStream out,
       Formatter formatter,
-      String rowName,
+      String paramName,
       String inputName,
       String defaultValue,
       boolean zebraStripe) {
@@ -79,7 +82,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     } else {
       out.print("<tr>");
     }
-    formatter.format("<td>%s</td>", rowName);
+    formatter.format("<td>%s</td>", paramName);
     formatter.format(
         "<td class=\"border-left-dark\"><input type=text size=15 name=%s value=\"\" /></td>",
         inputName);
@@ -98,6 +101,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<table style=\"border-spacing: 0; border: 1px solid #363636;\">");
     out.print("<tr class=\"bg-color\">");
     out.print("<th colspan=3 class=\"header-text\"><b>Permanently change</b></th>");
+    out.print("</tr>");
     emitChangeTableRow(
         out,
         formatter,
@@ -149,14 +153,83 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   /**
+   * Emits a single row of the active tracing parameters table to the {@link PrintStream} {@code
+   * out}.
+   *
+   * @param out the {@link PrintStream} {@code out}.
+   * @param formatter a {@link Formatter} for formatting HTML expressions.
+   * @param paramName the name of the parameter the row corresponds to.
+   * @param paramValue the value of the parameter the row corresponds to.
+   * @param zebraStripe the boolean for zebraStriping rows.
+   */
+  private static void emitActiveTableRow(
+      PrintStream out,
+      Formatter formatter,
+      String paramName,
+      String paramValue,
+      boolean zebraStripe) {
+    if (zebraStripe) {
+      formatter.format("<tr style=\"background-color: %s;\">", ZEBRA_STRIPE_COLOR);
+    } else {
+      out.print("<tr>");
+    }
+    formatter.format("<td>%s</td>", paramName);
+    formatter.format("<td class=\"border-left-dark\">%s</td>", paramValue);
+    out.print("</tr>");
+  }
+
+  /**
    * Emits the active tracing parameters table to the {@link PrintStream} {@code out}.
    *
    * @param out the {@link PrintStream} {@code out}.
    * @param formatter a {@link Formatter} for formatting HTML expressions.
    */
-  private static void emitActiveTable(PrintStream out, Formatter formatter) {
-    out.print("");
-    formatter.format("");
+  private static void emitActiveTable(
+      PrintStream out, Formatter formatter, TraceConfig traceConfig) {
+    boolean zebraStripe = false;
+    out.print("<table style=\"border-spacing: 0; border: 1px solid #363636;\">");
+    out.print("<tr class=\"bg-color\">");
+    out.print("<th class=\"header-text\"><b>Name</b></th>");
+    out.print("<th class=\"header-text border-left-white\"><b>Value</b></th>");
+    out.print("</tr>");
+    emitActiveTableRow(
+        out, formatter, "Sampler", traceConfig.getSampler().getDescription(), zebraStripe);
+    zebraStripe = !zebraStripe;
+    emitActiveTableRow(
+        out,
+        formatter,
+        "MaxNumberOfAttributes",
+        Integer.toString(traceConfig.getMaxNumberOfAttributes()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
+    emitActiveTableRow(
+        out,
+        formatter,
+        "MaxNumberOfEvents",
+        Integer.toString(traceConfig.getMaxNumberOfEvents()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
+    emitActiveTableRow(
+        out,
+        formatter,
+        "MaxNumberOfLinks",
+        Integer.toString(traceConfig.getMaxNumberOfLinks()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
+    emitActiveTableRow(
+        out,
+        formatter,
+        "MaxNumberOfAttributesPerEvent",
+        Integer.toString(traceConfig.getMaxNumberOfAttributesPerEvent()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
+    emitActiveTableRow(
+        out,
+        formatter,
+        "MaxNumberOfAttributesPerLink",
+        Integer.toString(traceConfig.getMaxNumberOfAttributesPerLink()),
+        zebraStripe);
+    out.print("</table>");
   }
 
   /**
@@ -166,7 +239,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    * @param queryMap the map containing URL query parameters
    * @param out the {@link PrintStream} {@code out}.
    */
-  private static void emitHtmlBody(Map<String, String> queryMap, PrintStream out)
+  private void emitHtmlBody(Map<String, String> queryMap, PrintStream out)
       throws UnsupportedEncodingException {
     out.print(
         "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
@@ -185,7 +258,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<input type=\"hidden\" name=\"default\" value=\"\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
-    emitActiveTable(out, formatter);
+    out.print("<h2>Active Tracing Parameters</h2>");
+    emitActiveTable(out, formatter, traceConfig);
     // deal with query map
     queryMap.toString();
   }
