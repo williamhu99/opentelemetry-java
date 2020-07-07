@@ -443,7 +443,7 @@ final class TracezZPageHandler extends ZPageHandler {
     Formatter formatter = new Formatter(out, Locale.US);
     emitSummaryTable(out, formatter);
     // spanName will be null if the query parameter doesn't exist in the URL
-    String spanName = queryMap.get(PARAM_SPAN_NAME);
+    String spanName = URLEncoder.encode(queryMap.get(PARAM_SPAN_NAME), "UTF-8");
     if (spanName != null) {
       // Show detailed information for the corresponding span
       String typeStr = queryMap.get(PARAM_SAMPLE_TYPE);
