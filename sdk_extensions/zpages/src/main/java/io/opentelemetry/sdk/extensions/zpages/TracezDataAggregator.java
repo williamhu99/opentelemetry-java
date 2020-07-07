@@ -19,7 +19,6 @@ package io.opentelemetry.sdk.extensions.zpages;
 import io.opentelemetry.sdk.trace.ReadableSpan;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.trace.Status;
-import io.opentelemetry.trace.Status.CanonicalCode;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -55,13 +53,7 @@ final class TracezDataAggregator {
    * @return a Set of {@link String}.
    */
   public Set<String> getSpanNames() {
-    Set<String> spanNames = new TreeSet<>();
-    Collection<ReadableSpan> allRunningSpans = spanProcessor.getRunningSpans();
-    for (ReadableSpan span : allRunningSpans) {
-      spanNames.add(span.getName());
-    }
-    spanNames.addAll(spanProcessor.getCompletedSpanCache().keySet());
-    return spanNames;
+    return spanProcessor.getSpanNames();
   }
 
   /**
@@ -94,28 +86,6 @@ final class TracezDataAggregator {
       }
     }
     return filteredSpans;
-  }
-
-  /**
-   * Returns a Map of counts for the {@link Status#OK} spans within [lowerBound, upperBound) {@link
-   * TracezDataAggregator}.
-   *
-   * @param lowerBound latency lower bound (inclusive)
-   * @param upperBound latency upper bound (exclusive)
-   * @return a Map of span counts for each span name within the bounds.
-   */
-  public Map<String, Integer> getSpanLatencyCounts(long lowerBound, long upperBound) {
-    Collection<ReadableSpan> allCompletedSpans = spanProcessor.getCompletedSpans();
-    Map<String, Integer> numSpansPerName = new HashMap<>();
-    for (ReadableSpan span : allCompletedSpans) {
-      if (span.toSpanData().getStatus().isOk()
-          && span.getLatencyNanos() >= lowerBound
-          && span.getLatencyNanos() < upperBound) {
-        Integer prevValue = numSpansPerName.get(span.getName());
-        numSpansPerName.put(span.getName(), prevValue != null ? prevValue + 1 : 1);
-      }
-    }
-    return numSpansPerName;
   }
 
   /**
@@ -189,24 +159,5 @@ final class TracezDataAggregator {
       errorSpans.add(span.toSpanData());
     }
     return errorSpans;
-  }
-
-  /**
-   * Returns a List of error spans with a given span name and canonical code for {@link
-   * TracezDataAggregator}.
-   *
-   * @param spanName name to filter returned spans.
-   * @param errorCode canonical error code to filter returned spans.
-   * @return a List of {@link SpanData}.
-   */
-  public List<SpanData> getErrorSpans(String spanName, CanonicalCode errorCode) {
-    List<SpanData> allErrorSpans = getErrorSpans(spanName);
-    List<SpanData> filteredSpans = new ArrayList<>();
-    for (SpanData span : allErrorSpans) {
-      if (span.getStatus().getCanonicalCode().equals(errorCode)) {
-        filteredSpans.add(span);
-      }
-    }
-    return filteredSpans;
   }
 }

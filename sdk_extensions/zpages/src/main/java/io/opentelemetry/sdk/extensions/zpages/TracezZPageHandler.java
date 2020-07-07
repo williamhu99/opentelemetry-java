@@ -436,15 +436,14 @@ final class TracezZPageHandler extends ZPageHandler {
     }
     // Link to OpenTelemetry Logo
     out.print(
-        "<img style=\"height: 90px;\""
-            + "src=\"data:image/png;base64,"
+        "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
             + ZPageLogo.logoBase64
             + "\" />");
     out.print("<h1>TraceZ Summary</h1>");
     Formatter formatter = new Formatter(out, Locale.US);
     emitSummaryTable(out, formatter);
     // spanName will be null if the query parameter doesn't exist in the URL
-    String spanName = queryMap.get(PARAM_SPAN_NAME);
+    String spanName = URLEncoder.encode(queryMap.get(PARAM_SPAN_NAME), "UTF-8");
     if (spanName != null) {
       // Show detailed information for the corresponding span
       String typeStr = queryMap.get(PARAM_SAMPLE_TYPE);
@@ -507,13 +506,12 @@ final class TracezZPageHandler extends ZPageHandler {
       out.print(
           "<link rel=\"shortcut icon\" href=\"data:image/png;base64,"
               + ZPageLogo.faviconBase64
-              + "\""
-              + "type=\"image/png\">");
+              + "\" type=\"image/png\">");
       out.print(
           "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
               + "rel=\"stylesheet\">");
       out.print(
-          "<link href=\"https://fonts.googleapis.com/css?family=Roboto\"" + "rel=\"stylesheet\">");
+          "<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
       out.print("<title>TraceZ</title>");
       emitHtmlStyle(out);
       out.print("</head>");
