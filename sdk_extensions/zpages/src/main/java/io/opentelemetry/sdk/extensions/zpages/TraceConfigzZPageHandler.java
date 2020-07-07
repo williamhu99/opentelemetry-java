@@ -57,8 +57,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   /**
-   * Emits a single row of the change tracing parameter table to the {@link PrintStream} {@code out}.
-   * 
+   * Emits a single row of the change tracing parameter table to the {@link PrintStream} {@code
+   * out}.
+   *
    * @param out the {@link PrintStream} {@code out}.
    * @param formatter a {@link Formatter} for formatting HTML expressions.
    * @param rowName the parameter name the row corresponds to.
@@ -67,21 +68,28 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    * @param zebraStripe the boolean for zebraStriping rows.
    */
   private static void emitChangeTableRow(
-      PrintStream out, Formatter formatter, String rowName, String inputName, String defaultValue, boolean zebraStripe) {
+      PrintStream out,
+      Formatter formatter,
+      String rowName,
+      String inputName,
+      String defaultValue,
+      boolean zebraStripe) {
     if (zebraStripe) {
       formatter.format("<tr style=\"background-color: %s;\">", ZEBRA_STRIPE_COLOR);
     } else {
       out.print("<tr>");
     }
     formatter.format("<td>%s</td>", rowName);
-    formatter.format("<td class=\"border-left-dark\"><input type=text size=15 name=%s value=\"\" /></td>", inputName);
+    formatter.format(
+        "<td class=\"border-left-dark\"><input type=text size=15 name=%s value=\"\" /></td>",
+        inputName);
     formatter.format("<td class=\"border-left-dark\">(%s)</td>", defaultValue);
     out.print("</tr>");
   }
 
   /**
    * Emits the change tracing parameter table to the {@link PrintStream} {@code out}.
-   * 
+   *
    * @param out the {@link PrintStream} {@code out}.
    * @param formatter a {@link Formatter} for formatting HTML expressions.
    */
@@ -95,47 +103,53 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         formatter,
         "SamplingProbability to",
         QUERY_STRING_SAMPLING_PROBABILITY,
-        "defaultValue", zebraStripe);
+        "defaultValue",
+        zebraStripe);
     zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfAttributes to",
         QUERY_STRING_MAX_NUM_OF_ATTRIBUTES,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributes()), zebraStripe);
-        zebraStripe = !zebraStripe;
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributes()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfEvents to",
         QUERY_STRING_MAX_NUM_OF_EVENTS,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfEvents()), zebraStripe);
-        zebraStripe = !zebraStripe;
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfEvents()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfLinks to",
         QUERY_STRING_MAX_NUM_OF_LINKS,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfLinks()), zebraStripe);
-        zebraStripe = !zebraStripe;
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfLinks()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfAttributesPerEvent to",
         QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent()), zebraStripe);
-        zebraStripe = !zebraStripe;
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent()),
+        zebraStripe);
+    zebraStripe = !zebraStripe;
     emitChangeTableRow(
         out,
         formatter,
         "MaxNumberOfAttributesPerLink to",
         QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink()), zebraStripe);
+        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink()),
+        zebraStripe);
   }
 
   /**
    * Emits the active tracing parameters table to the {@link PrintStream} {@code out}.
-   * 
+   *
    * @param out the {@link PrintStream} {@code out}.
    * @param formatter a {@link Formatter} for formatting HTML expressions.
    */
