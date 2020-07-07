@@ -56,35 +56,121 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</style>");
   }
 
-  /**
-   * Emits a single row of the change tracing parameter table to the {@link PrintStream} {@code
-   * out}.
-   *
-   * @param out the {@link PrintStream} {@code out}.
-   * @param formatter a {@link Formatter} for formatting HTML expressions.
-   * @param rowName the parameter name the row corresponds to.
-   * @param inputName the input element name (this will be used as URL query parameter).
-   * @param defaultValue the default value of the corresponding parameter.
-   * @param zebraStripe the boolean for zebraStriping rows.
-   */
-  private static void emitChangeTableRow(
-      PrintStream out,
-      Formatter formatter,
-      String rowName,
-      String inputName,
-      String defaultValue,
-      boolean zebraStripe) {
-    if (zebraStripe) {
-      formatter.format("<tr style=\"background-color: %s;\">", ZEBRA_STRIPE_COLOR);
-    } else {
-      out.print("<tr>");
+  /** Builder pattern class for emiting a single row of the change parameter table. */
+  private static final class ChangeTableRow {
+    public static class Builder {
+      public ChangeTableRow build() {
+        return new ChangeTableRow(this);
+      }
+
+      /**
+       * Set the print stream to emit HTML contents.
+       *
+       * @param out the {@link PrintStream} {@code out}.
+       * @return the {@link Builder}.
+       */
+      public Builder setPrintStream(PrintStream out) {
+        this.out = out;
+        return this;
+      }
+
+      /**
+       * Set the print stream to emit HTML contents.
+       *
+       * @param formatter a {@link Formatter} for formatting HTML expressions.
+       * @return the {@link Builder}.
+       */
+      public Builder setFormatter(Formatter formatter) {
+        this.formatter = formatter;
+        return this;
+      }
+
+      /**
+       * Set the print stream to emit HTML contents.
+       *
+       * @param rowName the display name of the parameter the row.
+       * @return the {@link Builder}.
+       */
+      public Builder setRowName(String rowName) {
+        this.rowName = rowName;
+        return this;
+      }
+
+      /**
+       * Set the print stream to emit HTML contents.
+       *
+       * @param paramName the parameter name the row corresponds to (this will be used as URL query
+       *     parameter, e.g. /traceconfigz?maxnumofattributes=30).
+       * @return the {@link Builder}.
+       */
+      public Builder setParamName(String paramName) {
+        this.paramName = paramName;
+        return this;
+      }
+
+      /**
+       * Set the print stream to emit HTML contents.
+       *
+       * @param defaultValue the default value of the corresponding parameter.
+       * @return the {@link Builder}.
+       */
+      public Builder setParamDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
+        return this;
+      }
+
+      /**
+       * Set the print stream to emit HTML contents.
+       *
+       * @param zebraStripe the boolean for zebraStriping rows.
+       * @return the {@link Builder}.
+       */
+      public Builder setZebraStripe(boolean zebraStripe) {
+        this.zebraStripe = zebraStripe;
+        return this;
+      }
+
+      private PrintStream out;
+      private Formatter formatter;
+      private String rowName;
+      private String paramName;
+      private String defaultValue;
+      private boolean zebraStripe;
     }
-    formatter.format("<td>%s</td>", rowName);
-    formatter.format(
-        "<td class=\"border-left-dark\"><input type=text size=15 name=%s value=\"\" /></td>",
-        inputName);
-    formatter.format("<td class=\"border-left-dark\">(%s)</td>", defaultValue);
-    out.print("</tr>");
+
+    public static Builder builder() {
+      return new Builder();
+    }
+
+    private ChangeTableRow(Builder builder) {
+      out = builder.out;
+      formatter = builder.formatter;
+      rowName = builder.rowName;
+      paramName = builder.paramName;
+      defaultValue = builder.defaultValue;
+      zebraStripe = builder.zebraStripe;
+    }
+
+    private final PrintStream out;
+    private final Formatter formatter;
+    private final String rowName;
+    private final String paramName;
+    private final String defaultValue;
+    private final boolean zebraStripe;
+
+    public void emitHtml() {
+      if (zebraStripe) {
+        formatter.format("<tr style=\"background-color: %s;\">", ZEBRA_STRIPE_COLOR);
+      } else {
+        out.print("<tr>");
+      }
+      formatter.format("<td>%s</td>", rowName);
+      formatter.format(
+          "<td class=\"border-left-dark\"><input type=text size=15 name=%s value=\"\" /></td>",
+          paramName);
+      formatter.format("<td class=\"border-left-dark\">(%s)</td>", defaultValue);
+      out.print("</tr>");
+    }
   }
 
   /**
@@ -97,54 +183,62 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<table style=\"border-spacing: 0; border: 1px solid #363636;\">");
     out.print("<tr class=\"bg-color\">");
     out.print("<th colspan=3 class=\"header-text\"><b>Permanently change</b></th>");
-    boolean zebraStripe = false;
-    emitChangeTableRow(
-        out,
-        formatter,
-        "SamplingProbability to",
-        QUERY_STRING_SAMPLING_PROBABILITY,
-        "defaultValue",
-        zebraStripe);
-    zebraStripe = !zebraStripe;
-    emitChangeTableRow(
-        out,
-        formatter,
-        "MaxNumberOfAttributes to",
-        QUERY_STRING_MAX_NUM_OF_ATTRIBUTES,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributes()),
-        zebraStripe);
-    zebraStripe = !zebraStripe;
-    emitChangeTableRow(
-        out,
-        formatter,
-        "MaxNumberOfEvents to",
-        QUERY_STRING_MAX_NUM_OF_EVENTS,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfEvents()),
-        zebraStripe);
-    zebraStripe = !zebraStripe;
-    emitChangeTableRow(
-        out,
-        formatter,
-        "MaxNumberOfLinks to",
-        QUERY_STRING_MAX_NUM_OF_LINKS,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfLinks()),
-        zebraStripe);
-    zebraStripe = !zebraStripe;
-    emitChangeTableRow(
-        out,
-        formatter,
-        "MaxNumberOfAttributesPerEvent to",
-        QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent()),
-        zebraStripe);
-    zebraStripe = !zebraStripe;
-    emitChangeTableRow(
-        out,
-        formatter,
-        "MaxNumberOfAttributesPerLink to",
-        QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK,
-        Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink()),
-        zebraStripe);
+    ChangeTableRow.builder()
+        .setPrintStream(out)
+        .setFormatter(formatter)
+        .setRowName("SamplingProbability to")
+        .setParamName(QUERY_STRING_SAMPLING_PROBABILITY)
+        .setParamDefaultValue("1.0")
+        .setZebraStripe(false)
+        .build()
+        .emitHtml();
+    ChangeTableRow.builder()
+        .setPrintStream(out)
+        .setFormatter(formatter)
+        .setRowName("MaxNumberOfAttributes to")
+        .setParamName(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES)
+        .setParamDefaultValue(Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributes()))
+        .setZebraStripe(true)
+        .build()
+        .emitHtml();
+    ChangeTableRow.builder()
+        .setPrintStream(out)
+        .setFormatter(formatter)
+        .setRowName("MaxNumberOfEvents to")
+        .setParamName(QUERY_STRING_MAX_NUM_OF_EVENTS)
+        .setParamDefaultValue(Integer.toString(TraceConfig.getDefault().getMaxNumberOfEvents()))
+        .setZebraStripe(false)
+        .build()
+        .emitHtml();
+    ChangeTableRow.builder()
+        .setPrintStream(out)
+        .setFormatter(formatter)
+        .setRowName("MaxNumberOfLinks to")
+        .setParamName(QUERY_STRING_MAX_NUM_OF_LINKS)
+        .setParamDefaultValue(Integer.toString(TraceConfig.getDefault().getMaxNumberOfLinks()))
+        .setZebraStripe(true)
+        .build()
+        .emitHtml();
+    ChangeTableRow.builder()
+        .setPrintStream(out)
+        .setFormatter(formatter)
+        .setRowName("MaxNumberOfAttributesPerEvent to")
+        .setParamName(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT)
+        .setParamDefaultValue(
+            Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent()))
+        .setZebraStripe(false)
+        .build()
+        .emitHtml();
+    ChangeTableRow.builder()
+        .setPrintStream(out)
+        .setFormatter(formatter)
+        .setRowName("MaxNumberOfAttributesPerLink to")
+        .setParamName(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK)
+        .setParamDefaultValue(
+            Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink()))
+        .setZebraStripe(true)
+        .build()
+        .emitHtml();
   }
 
   /**
