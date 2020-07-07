@@ -56,6 +56,16 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</style>");
   }
 
+  /**
+   * Emits a single row of the change tracing parameter table to the {@link PrintStream} {@code out}.
+   * 
+   * @param out the {@link PrintStream} {@code out}.
+   * @param formatter a {@link Formatter} for formatting HTML expressions.
+   * @param rowName the parameter name the row corresponds to.
+   * @param inputName the input element name (this will be used as URL query parameter).
+   * @param defaultValue the default value of the corresponding parameter.
+   * @param zebraStripe the boolean for zebraStriping rows.
+   */
   private static void emitChangeTableRow(
       PrintStream out, Formatter formatter, String rowName, String inputName, String defaultValue, boolean zebraStripe) {
     if (zebraStripe) {
@@ -69,6 +79,12 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</tr>");
   }
 
+  /**
+   * Emits the change tracing parameter table to the {@link PrintStream} {@code out}.
+   * 
+   * @param out the {@link PrintStream} {@code out}.
+   * @param formatter a {@link Formatter} for formatting HTML expressions.
+   */
   private static void emitChangeTable(PrintStream out, Formatter formatter) {
     out.print("<table style=\"border-spacing: 0; border: 1px solid #363636;\">");
     out.print("<tr class=\"bg-color\">");
@@ -117,6 +133,12 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink()), zebraStripe);
   }
 
+  /**
+   * Emits the active tracing parameters table to the {@link PrintStream} {@code out}.
+   * 
+   * @param out the {@link PrintStream} {@code out}.
+   * @param formatter a {@link Formatter} for formatting HTML expressions.
+   */
   private static void emitActiveTable(PrintStream out, Formatter formatter) {
     out.print("");
     formatter.format("");
