@@ -174,12 +174,14 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<h1>Trace Configuration</h1>");
     Formatter formatter = new Formatter(out, Locale.US);
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
+    out.print("<input type=\"hidden\" name=\"change\" value=\"\" />");
     emitChangeTable(out, formatter);
     // Button for submit
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Submit</button>");
     out.print("</form>");
     // Button for restore default
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
+    out.print("<input type=\"hidden\" name=\"default\" value=\"\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
     emitActiveTable(out, formatter);
