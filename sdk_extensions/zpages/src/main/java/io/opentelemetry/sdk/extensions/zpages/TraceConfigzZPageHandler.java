@@ -34,7 +34,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       "maxnumofattributesperevent";
   private static final String QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK =
       "maxnumofattributesperlink";
-  // Background color used for zebra striping rows of summary table
+  // Background color used for zebra striping rows in table
   private static final String ZEBRA_STRIPE_COLOR = "#e6e6e6";
 
   TraceConfigzZPageHandler() {}
@@ -56,6 +56,17 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</style>");
   }
 
+  /**
+   * Emits a single row of the change tracing parameter table to the {@link PrintStream} {@code
+   * out}.
+   *
+   * @param out the {@link PrintStream} {@code out}.
+   * @param formatter a {@link Formatter} for formatting HTML expressions.
+   * @param rowName the parameter name the row corresponds to.
+   * @param inputName the input element name (this will be used as URL query parameter).
+   * @param defaultValue the default value of the corresponding parameter.
+   * @param zebraStripe the boolean for zebraStriping rows.
+   */
   private static void emitChangeTableRow(
       PrintStream out,
       Formatter formatter,
@@ -76,13 +87,17 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</tr>");
   }
 
+  /**
+   * Emits the change tracing parameter table to the {@link PrintStream} {@code out}.
+   *
+   * @param out the {@link PrintStream} {@code out}.
+   * @param formatter a {@link Formatter} for formatting HTML expressions.
+   */
   private static void emitChangeTable(PrintStream out, Formatter formatter) {
     boolean zebraStripe = false;
     out.print("<table style=\"border-spacing: 0; border: 1px solid #363636;\">");
     out.print("<tr class=\"bg-color\">");
-    out.print(
-        "<th colspan=3 class=\"header-text\" style=\"font-size: 16px;\">"
-            + "<b>Permanently change</b></th>");
+    out.print("<th colspan=3 class=\"header-text\"><b>Permanently change</b></th>");
     emitChangeTableRow(
         out,
         formatter,
@@ -133,6 +148,12 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</table>");
   }
 
+  /**
+   * Emits the active tracing parameters table to the {@link PrintStream} {@code out}.
+   *
+   * @param out the {@link PrintStream} {@code out}.
+   * @param formatter a {@link Formatter} for formatting HTML expressions.
+   */
   private static void emitActiveTable(PrintStream out, Formatter formatter) {
     out.print("");
     formatter.format("");
@@ -154,12 +175,14 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<h1>Trace Configuration</h1>");
     Formatter formatter = new Formatter(out, Locale.US);
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
+    out.print("<input type=\"hidden\" name=\"change\" value=\"\" />");
     emitChangeTable(out, formatter);
     // Button for submit
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Submit</button>");
     out.print("</form>");
     // Button for restore default
-    out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"post\">");
+    out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
+    out.print("<input type=\"hidden\" name=\"default\" value=\"\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
     emitActiveTable(out, formatter);
