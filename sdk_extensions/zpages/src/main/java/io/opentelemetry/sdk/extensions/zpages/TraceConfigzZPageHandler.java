@@ -107,7 +107,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         formatter,
         "SamplingProbability to",
         QUERY_STRING_SAMPLING_PROBABILITY,
-        "defaultValue",
+        "AlwaysOnSampler",
         zebraStripe);
     zebraStripe = !zebraStripe;
     emitChangeTableRow(
