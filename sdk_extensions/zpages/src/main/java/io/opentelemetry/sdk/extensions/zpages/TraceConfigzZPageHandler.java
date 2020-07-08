@@ -336,7 +336,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributes")
         .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributes()))
-        .setZebraStripe(false)
+        .setZebraStripe(true)
         .build()
         .emitHtml();
     ;
@@ -352,7 +352,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setPrintStream(out)
         .setParamName("MaxNumOfLinks")
         .setParamValue(Integer.toString(traceConfig.getMaxNumberOfLinks()))
-        .setZebraStripe(false)
+        .setZebraStripe(true)
         .build()
         .emitHtml();
     ;
@@ -368,7 +368,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerLink")
         .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributesPerLink()))
-        .setZebraStripe(false)
+        .setZebraStripe(true)
         .build()
         .emitHtml();
     ;
@@ -400,6 +400,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<input type=\"hidden\" name=\"default\" value=\"\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
+    out.print("<h2>Trace Configuration</h2>");
     emitActiveTable(out);
     // deal with query map
     queryMap.toString();
