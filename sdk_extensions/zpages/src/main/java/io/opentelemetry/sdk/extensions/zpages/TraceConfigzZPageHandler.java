@@ -58,6 +58,22 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
 
   /** Builder pattern class for emiting a single row of the change parameter table. */
   private static final class ChangeTableRow {
+    private final PrintStream out;
+    private final Formatter formatter;
+    private final String rowName;
+    private final String paramName;
+    private final String defaultValue;
+    private final boolean zebraStripe;
+
+    private ChangeTableRow(Builder builder) {
+      out = builder.out;
+      formatter = builder.formatter;
+      rowName = builder.rowName;
+      paramName = builder.paramName;
+      defaultValue = builder.defaultValue;
+      zebraStripe = builder.zebraStripe;
+    }
+
     public static class Builder {
       public ChangeTableRow build() {
         return new ChangeTableRow(this);
@@ -141,22 +157,6 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     public static Builder builder() {
       return new Builder();
     }
-
-    private ChangeTableRow(Builder builder) {
-      out = builder.out;
-      formatter = builder.formatter;
-      rowName = builder.rowName;
-      paramName = builder.paramName;
-      defaultValue = builder.defaultValue;
-      zebraStripe = builder.zebraStripe;
-    }
-
-    private final PrintStream out;
-    private final Formatter formatter;
-    private final String rowName;
-    private final String paramName;
-    private final String defaultValue;
-    private final boolean zebraStripe;
 
     public void emitHtml() {
       if (zebraStripe) {
