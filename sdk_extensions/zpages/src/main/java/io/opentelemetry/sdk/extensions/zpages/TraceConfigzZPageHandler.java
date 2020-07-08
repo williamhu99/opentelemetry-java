@@ -100,14 +100,15 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     boolean zebraStripe = false;
     out.print("<table style=\"border-spacing: 0; border: 1px solid #363636;\">");
     out.print("<tr class=\"bg-color\">");
-    out.print("<th colspan=3 class=\"header-text\"><b>Permanently change</b></th>");
+    out.print("<th colspan=2 class=\"header-text\"><b>Permanently change</b></th>");
+    out.print("<th colspan=1 class=\"header-text border-left-white\"><b>Default</b></th>");
     out.print("</tr>");
     emitChangeTableRow(
         out,
         formatter,
         "SamplingProbability to",
         QUERY_STRING_SAMPLING_PROBABILITY,
-        "AlwaysOnSampler",
+        TraceConfig.getDefault().getSampler().getDescription(),
         zebraStripe);
     zebraStripe = !zebraStripe;
     emitChangeTableRow(
