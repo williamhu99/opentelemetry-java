@@ -453,8 +453,9 @@ final class TracezZPageHandler extends ZPageHandler {
     out.print("<h1>TraceZ Summary</h1>");
     emitSummaryTable(out);
     // spanName will be null if the query parameter doesn't exist in the URL
-    String spanName = URLEncoder.encode(queryMap.get(PARAM_SPAN_NAME), "UTF-8");
+    String spanName = queryMap.get(PARAM_SPAN_NAME);
     if (spanName != null) {
+      spanName = URLEncoder.encode(spanName, "UTF-8");
       // Convert spanName with URL encoding
       spanName = URLEncoder.encode(spanName, "UTF-8");
       // Show detailed information for the corresponding span
