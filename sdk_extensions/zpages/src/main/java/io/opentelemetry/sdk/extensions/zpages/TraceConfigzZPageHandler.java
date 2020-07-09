@@ -16,6 +16,8 @@
 
 package io.opentelemetry.sdk.extensions.zpages;
 
+import io.opentelemetry.sdk.trace.Samplers;
+import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.config.TraceConfig;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -24,6 +26,9 @@ import java.util.Map;
 
 final class TraceConfigzZPageHandler extends ZPageHandler {
   private static final String TRACE_CONFIGZ_URL = "/traceconfigz";
+  private static final String QUERY_STRING_ACTION = "action";
+  private static final String QUERY_STRING_ACTION_CHANGE = "change";
+  private static final String QUERY_STRING_ACTION_DEFAULT = "default";
   private static final String QUERY_STRING_SAMPLING_PROBABILITY = "samplingprobability";
   private static final String QUERY_STRING_MAX_NUM_OF_ATTRIBUTES = "maxnumofattributes";
   private static final String QUERY_STRING_MAX_NUM_OF_EVENTS = "maxnumbofevents";
@@ -34,10 +39,10 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       "maxnumofattributesperlink";
   // Background color used for zebra striping rows in table
   private static final String ZEBRA_STRIPE_COLOR = "#e6e6e6";
-  private final TraceConfig traceConfig;
+  private final TracerSdkProvider tracerProvider;
 
-  TraceConfigzZPageHandler(TraceConfig traceConfig) {
-    this.traceConfig = traceConfig;
+  TraceConfigzZPageHandler(TracerSdkProvider tracerProvider) {
+    this.tracerProvider = tracerProvider;
   }
 
   @Override
@@ -69,7 +74,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         "<th colspan=2 style=\"text-align: left;\" class=\"header-text\">"
             + "<b>Permanently change</b></th>");
     out.print(
-        "<th colspan=1 class=\"header-text border-left-white\"><b>Permanently change</b></th>");
+        "<th colspan=1 class=\"header-text border-left-white\"><b>Default</b></th>");
     ChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("SamplingProbability to")
@@ -143,7 +148,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     ActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("Sampler")
-        .setParamValue(traceConfig.getSampler().getDescription())
+        .setParamValue(this.tracerProvider.getActiveTraceConfig().getSampler().getDescription())
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)
         .build()
@@ -151,7 +156,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     ActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributes")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributes()))
+        .setParamValue(
+            Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributes()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(true)
         .build()
@@ -159,7 +165,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     ActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfEvents")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfEvents()))
+        .setParamValue(
+            Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfEvents()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)
         .build()
@@ -167,7 +174,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     ActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfLinks")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfLinks()))
+        .setParamValue(
+            Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfLinks()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(true)
         .build()
@@ -175,7 +183,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     ActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerEvent")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributesPerEvent()))
+        .setParamValue(
+            Integer.toString(
+                this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerEvent()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)
         .build()
@@ -183,12 +193,57 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     ActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerLink")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributesPerLink()))
+        .setParamValue(
+            Integer.toString(
+                this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerLink()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(true)
         .build()
         .emitHtml();
     out.print("</table>");
+  }
+
+  private void appleActionOnTracer(Map<String, String> queryMap) {
+    String action = queryMap.get(QUERY_STRING_ACTION);
+    if (action.equals(QUERY_STRING_ACTION_CHANGE)) {
+      TraceConfig.Builder newConfigBuilder = this.tracerProvider.getActiveTraceConfig().toBuilder();
+      String samplingProbabilityStr = queryMap.get(QUERY_STRING_SAMPLING_PROBABILITY);
+      if (!samplingProbabilityStr.isEmpty()) {
+        double samplingProbability = Double.parseDouble(samplingProbabilityStr);
+        newConfigBuilder.setSampler(Samplers.probability(samplingProbability));
+      }
+      String maxNumOfAttributesStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES);
+      if (!maxNumOfAttributesStr.isEmpty()) {
+        int maxNumOfAttributes = Integer.parseInt(maxNumOfAttributesStr);
+        newConfigBuilder.setMaxNumberOfAttributes(maxNumOfAttributes);
+      }
+      String maxNumOfEventsStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_EVENTS);
+      if (!maxNumOfEventsStr.isEmpty()) {
+        int maxNumOfEvents = Integer.parseInt(maxNumOfEventsStr);
+        newConfigBuilder.setMaxNumberOfEvents(maxNumOfEvents);
+      }
+      String maxNumOfLinksStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_LINKS);
+      if (!maxNumOfLinksStr.isEmpty()) {
+        int maxNumOfLinks = Integer.parseInt(maxNumOfLinksStr);
+        newConfigBuilder.setMaxNumberOfLinks(maxNumOfLinks);
+      }
+      String maxNumOfAttributesPerEventStr =
+          queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT);
+      if (!maxNumOfAttributesPerEventStr.isEmpty()) {
+        int maxNumOfAttributesPerEvent = Integer.parseInt(maxNumOfAttributesPerEventStr);
+        newConfigBuilder.setMaxNumberOfAttributesPerEvent(maxNumOfAttributesPerEvent);
+      }
+      String maxNumOfAttributesPerLinkStr =
+          queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT);
+      if (!maxNumOfAttributesPerLinkStr.isEmpty()) {
+        int maxNumOfAttributesPerLink = Integer.parseInt(maxNumOfAttributesPerLinkStr);
+        newConfigBuilder.setMaxNumberOfAttributesPerLink(maxNumOfAttributesPerLink);
+      }
+      this.tracerProvider.updateActiveTraceConfig(newConfigBuilder.build());
+    } else if (action.equals(QUERY_STRING_ACTION_DEFAULT)) {
+      TraceConfig defaultConfig = TraceConfig.getDefault().toBuilder().build();
+      this.tracerProvider.updateActiveTraceConfig(defaultConfig);
+    }
   }
 
   /**
@@ -206,20 +261,20 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
             + "\" />");
     out.print("<h1>Trace Configuration</h1>");
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
-    out.print("<input type=\"hidden\" name=\"change\" value=\"\" />");
+    out.print("<input type=\"hidden\" name=\"action\" value=\"change\" />");
     emitChangeTable(out);
     // Button for submit
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Submit</button>");
     out.print("</form>");
     // Button for restore default
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
-    out.print("<input type=\"hidden\" name=\"default\" value=\"\" />");
+    out.print("<input type=\"hidden\" name=\"action\" value=\"default\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
     out.print("<h2>Trace Configuration</h2>");
     emitActiveTable(out);
-    // deal with query map
-    queryMap.toString();
+    // Apply action based on queryMap
+    appleActionOnTracer(queryMap);
   }
 
   @Override

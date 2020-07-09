@@ -71,9 +71,9 @@ public final class ZPageServer {
   // Handler for /tracez page
   private static final ZPageHandler tracezZPageHandler =
       new TracezZPageHandler(tracezDataAggregator);
-  private static final TracerSdkProvider tracerProvidor = OpenTelemetrySdk.getTracerProvider();
+  private static final TracerSdkProvider tracerProvider = OpenTelemetrySdk.getTracerProvider();
   private static final ZPageHandler traceConfigzZPageHandler =
-      new TraceConfigzZPageHandler(tracerProvidor.getActiveTraceConfig());
+      new TraceConfigzZPageHandler(tracerProvider);
 
   private static final Object mutex = new Object();
   private static final AtomicBoolean isTracezSpanProcesserAdded = new AtomicBoolean(false);
