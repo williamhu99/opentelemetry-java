@@ -73,8 +73,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print(
         "<th colspan=2 style=\"text-align: left;\" class=\"header-text\">"
             + "<b>Permanently change</b></th>");
-    out.print(
-        "<th colspan=1 class=\"header-text border-left-white\"><b>Default</b></th>");
+    out.print("<th colspan=1 class=\"header-text border-left-white\"><b>Default</b></th>");
     ChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("SamplingProbability to")

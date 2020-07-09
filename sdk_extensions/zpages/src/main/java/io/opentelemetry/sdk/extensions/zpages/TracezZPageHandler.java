@@ -44,7 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 final class TracezZPageHandler extends ZPageHandler {
@@ -273,7 +273,7 @@ final class TracezZPageHandler extends ZPageHandler {
     String elapsedSecondsStr =
         span.getHasEnded()
             ? String.format("%.6f", (span.getEndEpochNanos() - span.getStartEpochNanos()) * 1.0e-9)
-            : String.format("%s", "");
+            : "";
     formatter.format(
         "<tr style=\"background-color: %s;\">", zebraStripe ? ZEBRA_STRIPE_COLOR : "#fff");
     formatter.format(
@@ -380,12 +380,15 @@ final class TracezZPageHandler extends ZPageHandler {
   private static String renderAttributes(ReadableAttributes attributes) {
     final StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("Attributes:{");
-    final AtomicBoolean first = new AtomicBoolean(true);
     attributes.forEach(
         new KeyValueConsumer<AttributeValue>() {
+          private boolean first = true;
+
           @Override
           public void consume(String key, AttributeValue value) {
-            if (!first.getAndSet(false)) {
+            if (first) {
+              first = false;
+            } else {
               stringBuilder.append(", ");
             }
             stringBuilder.append(key);
@@ -448,7 +451,7 @@ final class TracezZPageHandler extends ZPageHandler {
     // Link to OpenTelemetry Logo
     out.print(
         "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
-            + ZPageLogo.logoBase64
+            + ZPageLogo.getLogoBase64()
             + "\" />");
     out.print("<h1>TraceZ Summary</h1>");
     emitSummaryTable(out);
@@ -519,7 +522,7 @@ final class TracezZPageHandler extends ZPageHandler {
       out.print("<meta charset=\"UTF-8\">");
       out.print(
           "<link rel=\"shortcut icon\" href=\"data:image/png;base64,"
-              + ZPageLogo.faviconBase64
+              + ZPageLogo.getFaviconBase64()
               + "\" type=\"image/png\">");
       out.print(
           "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
@@ -538,7 +541,8 @@ final class TracezZPageHandler extends ZPageHandler {
       out.print("</body>");
       out.print("</html>");
     } catch (Throwable t) {
-      System.err.print("Error while generating HTML: " + t.toString());
+      Logger.getLogger(TracezZPageHandler.class.getName())
+          .warning("Error while generating HTML: " + t.toString());
     }
   }
 
