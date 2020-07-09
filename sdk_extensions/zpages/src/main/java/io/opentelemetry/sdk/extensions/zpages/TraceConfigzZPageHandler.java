@@ -69,7 +69,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         "<th colspan=2 style=\"text-align: left;\" class=\"header-text\">"
             + "<b>Permanently change</b></th>");
     out.print(
-        "<th colspan=1 class=\"header-text border-left-white\"><b>Permanently change</b></th>");
+        "<th colspan=1 class=\"header-text border-left-white\"><b>Default</b></th>");
     ChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("SamplingProbability to")
@@ -216,7 +216,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<input type=\"hidden\" name=\"default\" value=\"\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
-    out.print("<h2>Trace Configuration</h2>");
+    out.print("<h2>Active Tracing Parameters</h2>");
     emitActiveTable(out);
     // deal with query map
     queryMap.toString();
