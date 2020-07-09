@@ -271,7 +271,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<input type=\"hidden\" name=\"action\" value=\"default\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
-    out.print("<h2>Trace Configuration</h2>");
+    out.print("<h2>Active Tracing Parameters</h2>");
     emitActiveTable(out);
     // Apply action based on queryMap
     appleActionOnTracer(queryMap);
