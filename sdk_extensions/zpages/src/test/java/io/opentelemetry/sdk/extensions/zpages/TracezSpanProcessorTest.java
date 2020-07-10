@@ -29,18 +29,17 @@ import io.opentelemetry.trace.TraceId;
 import io.opentelemetry.trace.TraceState;
 import java.util.Collection;
 import java.util.Properties;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.MockitoRule;
 
 /** Unit tests for {@link TracezSpanProcessor}. */
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public final class TracezSpanProcessorTest {
-  @Mock private ReadableSpan readableSpan;
-  @Mock private SpanData spanData;
   private static final String SPAN_NAME = "span";
   private static final SpanContext SAMPLED_SPAN_CONTEXT =
       SpanContext.create(
@@ -59,10 +58,10 @@ public final class TracezSpanProcessorTest {
     assertThat(completedSpans.size()).isEqualTo(completedSpanCacheSize);
   }
 
-  @Before
-  public void setUp() {
-    MockitoAnnotations.initMocks(this);
-  }
+  @Mock private ReadableSpan readableSpan;
+  @Mock private SpanData spanData;
+
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Test
   public void onStart_sampledSpan_inCache() {
@@ -78,8 +77,8 @@ public final class TracezSpanProcessorTest {
     TracezSpanProcessor spanProcessor = TracezSpanProcessor.newBuilder().build();
     /* Return a sampled span, which should be added to the completed cache upon ending */
     when(readableSpan.getSpanContext()).thenReturn(SAMPLED_SPAN_CONTEXT);
-    spanProcessor.onStart(readableSpan);
     when(readableSpan.getName()).thenReturn(SPAN_NAME);
+    spanProcessor.onStart(readableSpan);
     when(readableSpan.toSpanData()).thenReturn(spanData);
     when(spanData.getStatus()).thenReturn(SPAN_STATUS);
     spanProcessor.onEnd(readableSpan);
@@ -101,7 +100,6 @@ public final class TracezSpanProcessorTest {
     /* Return a non-sampled span, which should not be added to the running cache by default */
     when(readableSpan.getSpanContext()).thenReturn(NOT_SAMPLED_SPAN_CONTEXT);
     spanProcessor.onStart(readableSpan);
-    when(readableSpan.getName()).thenReturn(SPAN_NAME);
     spanProcessor.onEnd(readableSpan);
     assertSpanCacheSizes(spanProcessor, 0, 0);
   }
@@ -118,7 +116,6 @@ public final class TracezSpanProcessorTest {
     when(readableSpan.getSpanContext()).thenReturn(NOT_SAMPLED_SPAN_CONTEXT);
     spanProcessor.onStart(readableSpan);
     assertSpanCacheSizes(spanProcessor, 1, 0);
-    when(readableSpan.getName()).thenReturn(SPAN_NAME);
     spanProcessor.onEnd(readableSpan);
     assertSpanCacheSizes(spanProcessor, 0, 0);
   }
@@ -133,9 +130,9 @@ public final class TracezSpanProcessorTest {
 
     /* Return a non-sampled span, which should be added to the caches */
     when(readableSpan.getSpanContext()).thenReturn(NOT_SAMPLED_SPAN_CONTEXT);
+    when(readableSpan.getName()).thenReturn(SPAN_NAME);
     spanProcessor.onStart(readableSpan);
     assertSpanCacheSizes(spanProcessor, 1, 0);
-    when(readableSpan.getName()).thenReturn(SPAN_NAME);
     when(readableSpan.toSpanData()).thenReturn(spanData);
     when(spanData.getStatus()).thenReturn(SPAN_STATUS);
     spanProcessor.onEnd(readableSpan);

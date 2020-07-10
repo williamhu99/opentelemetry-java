@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * A class of boundaries for the latency buckets. The completed spans with a status of {@link
  * io.opentelemetry.trace.Status#OK} are categorized into one of these buckets om the traceZ zPage.
  */
-enum LatencyBoundaries {
+enum LatencyBoundary {
   /** Stores finished successful requests of duration within the interval [0, 10us). */
   ZERO_MICROSx10(0, TimeUnit.MICROSECONDS.toNanos(10)),
 
@@ -59,7 +59,7 @@ enum LatencyBoundaries {
    * @param latencyLowerBound the latency lower bound of the bucket.
    * @param latencyUpperBound the latency upper bound of the bucket.
    */
-  LatencyBoundaries(long latencyLowerBound, long latencyUpperBound) {
+  LatencyBoundary(long latencyLowerBound, long latencyUpperBound) {
     this.latencyLowerBound = latencyLowerBound;
     this.latencyUpperBound = latencyUpperBound;
   }
@@ -69,7 +69,7 @@ enum LatencyBoundaries {
    *
    * @return the latency lower bound of the bucket.
    */
-  public long getLatencyLowerBound() {
+  long getLatencyLowerBound() {
     return latencyLowerBound;
   }
 
@@ -78,7 +78,23 @@ enum LatencyBoundaries {
    *
    * @return the latency upper bound of the bucket.
    */
-  public long getLatencyUpperBound() {
+  long getLatencyUpperBound() {
     return latencyUpperBound;
+  }
+
+  /**
+   * Returns the LatencyBoundary that the argument falls into.
+   *
+   * @param latencyNanos latency in nanoseconds.
+   * @return the LatencyBoundary that latencyNanos falls into.
+   */
+  static LatencyBoundary getBoundary(long latencyNanos) {
+    for (LatencyBoundary bucket : LatencyBoundary.values()) {
+      if (latencyNanos >= bucket.getLatencyLowerBound()
+          && latencyNanos < bucket.getLatencyUpperBound()) {
+        return bucket;
+      }
+    }
+    return ZERO_MICROSx10;
   }
 }

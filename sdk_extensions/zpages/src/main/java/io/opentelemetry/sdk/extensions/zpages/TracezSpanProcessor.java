@@ -31,19 +31,17 @@ import javax.annotation.concurrent.ThreadSafe;
 /**
  * A {@link SpanProcessor} implementation for the traceZ zPage.
  *
- * <p>Configuration options for {@link io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}
- * can be read from system properties, environment variables, or {@link java.util.Properties}
- * objects.
+ * <p>Configuration options for {@link TracezSpanProcessor} can be read from system properties,
+ * environment variables, or {@link java.util.Properties} objects.
  *
- * <p>For system properties and {@link java.util.Properties} objects, {@link
- * io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor} will look for the following names:
+ * <p>For system properties and {@link java.util.Properties} objects, {@link TracezSpanProcessor}
+ * will look for the following names:
  *
  * <ul>
  *   <li>{@code otel.zpages.export.sampled}: sets whether only sampled spans should be exported.
  * </ul>
  *
- * <p>For environment variables, {@link io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}
- * will look for the following names:
+ * <p>For environment variables, {@link TracezSpanProcessor} will look for the following names:
  *
  * <ul>
  *   <li>{@code OTEL_ZPAGES_EXPORT_SAMPLED}: sets whether only sampled spans should be exported.
@@ -56,11 +54,11 @@ final class TracezSpanProcessor implements SpanProcessor {
   private final boolean sampled;
 
   /**
-   * Constructor for {@link io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}.
+   * Constructor for {@link TracezSpanProcessor}.
    *
    * @param sampled report only sampled spans.
    */
-  public TracezSpanProcessor(boolean sampled) {
+  TracezSpanProcessor(boolean sampled) {
     runningSpanCache = new ConcurrentHashMap<>();
     completedSpanCache = new ConcurrentHashMap<>();
     this.sampled = sampled;
@@ -68,7 +66,7 @@ final class TracezSpanProcessor implements SpanProcessor {
 
   @Override
   public void onStart(ReadableSpan span) {
-    runningSpanCache.putIfAbsent(span.getSpanContext().getSpanId(), span);
+    runningSpanCache.put(span.getSpanContext().getSpanId(), span);
   }
 
   @Override
@@ -81,9 +79,7 @@ final class TracezSpanProcessor implements SpanProcessor {
     runningSpanCache.remove(span.getSpanContext().getSpanId());
     if (!sampled || span.getSpanContext().getTraceFlags().isSampled()) {
       completedSpanCache.putIfAbsent(span.getName(), new TracezSpanBuckets());
-      synchronized (this) {
-        completedSpanCache.get(span.getName()).addToBucket(span);
-      }
+      completedSpanCache.get(span.getName()).addToBucket(span);
     }
   }
 
@@ -103,53 +99,46 @@ final class TracezSpanProcessor implements SpanProcessor {
   }
 
   /**
-   * Returns a Collection of all running spans for {@link
-   * io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}.
+   * Returns a Collection of all running spans for {@link TracezSpanProcessor}.
    *
-   * @return a Collection of {@link io.opentelemetry.sdk.trace.ReadableSpan}.
+   * @return a Collection of {@link ReadableSpan}.
    */
-  public Collection<ReadableSpan> getRunningSpans() {
+  Collection<ReadableSpan> getRunningSpans() {
     return runningSpanCache.values();
   }
 
   /**
-   * Returns a Collection of all completed spans for {@link
-   * io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}.
+   * Returns a Collection of all completed spans for {@link TracezSpanProcessor}.
    *
-   * @return a Collection of {@link io.opentelemetry.sdk.trace.ReadableSpan}.
+   * @return a Collection of {@link ReadableSpan}.
    */
-  public Collection<ReadableSpan> getCompletedSpans() {
+  Collection<ReadableSpan> getCompletedSpans() {
     Collection<ReadableSpan> completedSpans = new ArrayList<>();
-    synchronized (this) {
-      for (TracezSpanBuckets buckets : completedSpanCache.values()) {
-        completedSpans.addAll(buckets.getSpans());
-      }
+    for (TracezSpanBuckets buckets : completedSpanCache.values()) {
+      completedSpans.addAll(buckets.getSpans());
     }
     return completedSpans;
   }
 
   /**
-   * Returns the completed span cache for {@link
-   * io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}.
+   * Returns the completed span cache for {@link TracezSpanProcessor}.
    *
-   * @return a Map of String to {@link io.opentelemetry.sdk.extensions.zpages.TracezSpanBuckets}.
+   * @return a Map of String to {@link TracezSpanBuckets}.
    */
-  public Map<String, TracezSpanBuckets> getCompletedSpanCache() {
-    synchronized (this) {
-      return completedSpanCache;
-    }
+  Map<String, TracezSpanBuckets> getCompletedSpanCache() {
+    return completedSpanCache;
   }
 
   /**
-   * Returns a new Builder for {@link io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}.
+   * Returns a new Builder for {@link TracezSpanProcessor}.
    *
-   * @return a new {@link io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}.
+   * @return a new {@link TracezSpanProcessor}.
    */
   public static Builder newBuilder() {
     return new Builder();
   }
 
-  /** Builder class for {@link io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}. */
+  /** Builder class for {@link TracezSpanProcessor}. */
   public static final class Builder extends ConfigBuilder<Builder> {
 
     private static final String KEY_SAMPLED = "otel.zpages.export.sampled";
@@ -197,12 +186,12 @@ final class TracezSpanProcessor implements SpanProcessor {
     }
 
     /**
-     * Returns a new {@link io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}.
+     * Returns a new {@link TracezSpanProcessor}.
      *
-     * @return a new {@link io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor}.
+     * @return a new {@link TracezSpanProcessor}.
      */
-    public io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor build() {
-      return new io.opentelemetry.sdk.extensions.zpages.TracezSpanProcessor(sampled);
+    public TracezSpanProcessor build() {
+      return new TracezSpanProcessor(sampled);
     }
   }
 }
