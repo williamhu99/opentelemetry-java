@@ -25,7 +25,7 @@ final class ZPageStyle {
       "body{font-family: \"Roboto\", sans-serif; font-size: 14px;"
           + "background-color: #fff;}"
           + "h1{color: #363636; text-align: center; margin-bottom 20px;}"
-          + "h2{color: #363636; text-align: center; margin-top: 30px;}"
+          + "h2{color: #363636; text-align: center; margin-bottom: 20px;}"
           + "p{padding: 0 0.5em; color: #363636;}"
           + "tr.bg-color{background-color: #4b5fab;}"
           + "table{margin: 0 auto;}"
