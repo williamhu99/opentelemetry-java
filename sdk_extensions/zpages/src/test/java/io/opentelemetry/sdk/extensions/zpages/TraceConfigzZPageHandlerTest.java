@@ -49,7 +49,7 @@ public final class TraceConfigzZPageHandlerTest {
     String maxNumOfAttributesPerLink = "maxnumofattributesperlink";
 
     TraceConfigzZPageHandler traceConfigzZPageHandler =
-        new TraceConfigzZPageHandler(tracerProvider.getActiveTraceConfig());
+        new TraceConfigzZPageHandler(tracerProvider);
     traceConfigzZPageHandler.emitHtml(queryMap, output);
 
     assertThat(output.toString()).contains("SamplingProbability to");
@@ -71,7 +71,7 @@ public final class TraceConfigzZPageHandlerTest {
     OutputStream output = new ByteArrayOutputStream();
 
     TraceConfigzZPageHandler traceConfigzZPageHandler =
-        new TraceConfigzZPageHandler(tracerProvider.getActiveTraceConfig());
+        new TraceConfigzZPageHandler(tracerProvider);
     traceConfigzZPageHandler.emitHtml(queryMap, output);
 
     assertThat(output.toString()).contains("Sampler");
