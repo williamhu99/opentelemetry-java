@@ -68,9 +68,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print(
         "<th colspan=2 style=\"text-align: left;\" class=\"header-text\">"
             + "<b>Permanently change</b></th>");
-    out.print(
-        "<th colspan=1 class=\"header-text border-left-white\"><b>Default</b></th>");
-    ChangeTableRow.builder()
+    out.print("<th colspan=1 class=\"header-text border-left-white\"><b>Default</b></th>");
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("SamplingProbability to")
         .setParamName(QUERY_STRING_SAMPLING_PROBABILITY)
@@ -79,7 +78,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfAttributes to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES)
@@ -88,7 +87,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(true)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfEvents to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_EVENTS)
@@ -97,7 +96,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfLinks to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_LINKS)
@@ -106,7 +105,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(true)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfAttributesPerEvent to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT)
@@ -116,7 +115,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfAttributesPerLink to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK)
@@ -140,7 +139,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<th class=\"header-text\"><b>Name</b></th>");
     out.print("<th class=\"header-text border-left-white\"><b>Value</b></th>");
     out.print("</tr>");
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("Sampler")
         .setParamValue(traceConfig.getSampler().getDescription())
@@ -148,7 +147,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributes")
         .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributes()))
@@ -156,7 +155,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(true)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfEvents")
         .setParamValue(Integer.toString(traceConfig.getMaxNumberOfEvents()))
@@ -164,7 +163,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfLinks")
         .setParamValue(Integer.toString(traceConfig.getMaxNumberOfLinks()))
@@ -172,7 +171,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(true)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerEvent")
         .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributesPerEvent()))
@@ -180,7 +179,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerLink")
         .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributesPerLink()))
