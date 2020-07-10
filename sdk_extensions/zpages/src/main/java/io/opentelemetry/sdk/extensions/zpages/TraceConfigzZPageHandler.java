@@ -262,7 +262,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       throws UnsupportedEncodingException {
     out.print(
         "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
-            + ZPageLogo.logoBase64
+            + ZPageLogo.getLogoBase64()
             + "\" />");
     out.print("<h1>Trace Configuration</h1>");
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
@@ -294,7 +294,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       out.print("<meta charset=\"UTF-8\">");
       out.print(
           "<link rel=\"shortcut icon\" href=\"data:image/png;base64,"
-              + ZPageLogo.faviconBase64
+              + ZPageLogo.getFaviconBase64()
               + "\" type=\"image/png\">");
       out.print(
           "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
