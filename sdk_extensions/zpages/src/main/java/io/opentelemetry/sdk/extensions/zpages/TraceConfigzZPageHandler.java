@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 final class TraceConfigzZPageHandler extends ZPageHandler {
   private static final String TRACE_CONFIGZ_URL = "/traceconfigz";
@@ -73,9 +74,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print(
         "<th colspan=2 style=\"text-align: left;\" class=\"header-text\">"
             + "<b>Permanently change</b></th>");
-    out.print(
-        "<th colspan=1 class=\"header-text border-left-white\"><b>Default</b></th>");
-    ChangeTableRow.builder()
+    out.print("<th colspan=1 class=\"header-text border-left-white\"><b>Default</b></th>");
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("SamplingProbability to")
         .setParamName(QUERY_STRING_SAMPLING_PROBABILITY)
@@ -84,7 +84,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfAttributes to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES)
@@ -93,7 +93,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(true)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfEvents to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_EVENTS)
@@ -102,7 +102,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfLinks to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_LINKS)
@@ -111,7 +111,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(true)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfAttributesPerEvent to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT)
@@ -121,7 +121,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ChangeTableRow.builder()
+    TraceConfigzChangeTableRow.builder()
         .setPrintStream(out)
         .setRowName("MaxNumberOfAttributesPerLink to")
         .setParamName(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK)
@@ -145,7 +145,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("<th class=\"header-text\"><b>Name</b></th>");
     out.print("<th class=\"header-text border-left-white\"><b>Value</b></th>");
     out.print("</tr>");
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("Sampler")
         .setParamValue(this.tracerProvider.getActiveTraceConfig().getSampler().getDescription())
@@ -153,7 +153,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributes")
         .setParamValue(
@@ -162,7 +162,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(true)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfEvents")
         .setParamValue(
@@ -171,7 +171,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfLinks")
         .setParamValue(
@@ -180,7 +180,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(true)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerEvent")
         .setParamValue(
@@ -190,7 +190,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setZebraStripe(false)
         .build()
         .emitHtml();
-    ActiveTableRow.builder()
+    TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerLink")
         .setParamValue(
@@ -203,7 +203,12 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</table>");
   }
 
-  private void appleActionOnTracer(Map<String, String> queryMap) {
+  /**
+   * Apply the action through the tracerProvider based on query parameters.
+   *
+   * @param queryMap the map containing URL query parameters.
+   */
+  private void applyActions(Map<String, String> queryMap) {
     String action = queryMap.get(QUERY_STRING_ACTION);
     if (action.equals(QUERY_STRING_ACTION_CHANGE)) {
       TraceConfig.Builder newConfigBuilder = this.tracerProvider.getActiveTraceConfig().toBuilder();
@@ -250,7 +255,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    * Emits HTML body content to the {@link PrintStream} {@code out}. Content emitted by this
    * function should be enclosed by <body></body> tag.
    *
-   * @param queryMap the map containing URL query parameters
+   * @param queryMap the map containing URL query parameters.
    * @param out the {@link PrintStream} {@code out}.
    */
   private void emitHtmlBody(Map<String, String> queryMap, PrintStream out)
@@ -261,20 +266,22 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
             + "\" />");
     out.print("<h1>Trace Configuration</h1>");
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
-    out.print("<input type=\"hidden\" name=\"action\" value=\"change\" />");
+    out.print(
+        "<input type=\"hidden\" name=\"action\" value=\"" + QUERY_STRING_ACTION_CHANGE + "\" />");
     emitChangeTable(out);
     // Button for submit
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Submit</button>");
     out.print("</form>");
     // Button for restore default
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
-    out.print("<input type=\"hidden\" name=\"action\" value=\"default\" />");
+    out.print(
+        "<input type=\"hidden\" name=\"action\" value=\"" + QUERY_STRING_ACTION_DEFAULT + "\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
     out.print("<h2>Active Tracing Parameters</h2>");
     emitActiveTable(out);
-    // Apply action based on queryMap
-    appleActionOnTracer(queryMap);
+    // Apply action based on query parameters
+    applyActions(queryMap);
   }
 
   @Override
@@ -306,7 +313,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       out.print("</body>");
       out.print("</html>");
     } catch (Throwable t) {
-      System.err.print("Error while generating HTML: " + t.toString());
+      Logger.getLogger(TracezZPageHandler.class.getName())
+          .warning("Error while generating HTML: " + t.toString());
     }
   }
 }
