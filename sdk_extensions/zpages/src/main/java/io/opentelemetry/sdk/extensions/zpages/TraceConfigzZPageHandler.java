@@ -156,7 +156,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributes")
-        .setParamValue(Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributes()))
+        .setParamValue(
+            Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributes()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(true)
         .build()
@@ -164,7 +165,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfEvents")
-        .setParamValue(Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfEvents()))
+        .setParamValue(
+            Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfEvents()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)
         .build()
@@ -172,7 +174,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfLinks")
-        .setParamValue(Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfLinks()))
+        .setParamValue(
+            Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfLinks()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(true)
         .build()
@@ -180,7 +183,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerEvent")
-        .setParamValue(Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerEvent()))
+        .setParamValue(
+            Integer.toString(
+                this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerEvent()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)
         .build()
@@ -188,7 +193,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerLink")
-        .setParamValue(Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerLink()))
+        .setParamValue(
+            Integer.toString(
+                this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerLink()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(true)
         .build()
@@ -198,7 +205,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
 
   /**
    * Apply the action through the tracerProvider based on query parameters.
-   * 
+   *
    * @param queryMap the map containing URL query parameters.
    */
   private void applyActions(Map<String, String> queryMap) {
@@ -259,14 +266,16 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
             + "\" />");
     out.print("<h1>Trace Configuration</h1>");
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
-    out.print("<input type=\"hidden\" name=\"action\" value=\""+QUERY_STRING_ACTION_CHANGE+"\" />");
+    out.print(
+        "<input type=\"hidden\" name=\"action\" value=\"" + QUERY_STRING_ACTION_CHANGE + "\" />");
     emitChangeTable(out);
     // Button for submit
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Submit</button>");
     out.print("</form>");
     // Button for restore default
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
-    out.print("<input type=\"hidden\" name=\"action\" value=\""+QUERY_STRING_ACTION_DEFAULT+"\" />");
+    out.print(
+        "<input type=\"hidden\" name=\"action\" value=\"" + QUERY_STRING_ACTION_DEFAULT + "\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
     out.print("<h2>Active Tracing Parameters</h2>");
