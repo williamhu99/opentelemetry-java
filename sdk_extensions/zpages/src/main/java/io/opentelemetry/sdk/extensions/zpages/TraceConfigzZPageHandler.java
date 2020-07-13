@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 final class TraceConfigzZPageHandler extends ZPageHandler {
@@ -40,6 +41,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       "maxnumofattributesperlink";
   // Background color used for zebra striping rows in table
   private static final String ZEBRA_STRIPE_COLOR = "#e6e6e6";
+  private static final Logger logger = Logger.getLogger(TraceConfigzZPageHandler.class.getName());
   private final TracerSdkProvider tracerProvider;
 
   TraceConfigzZPageHandler(TracerSdkProvider tracerProvider) {
@@ -309,12 +311,12 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         emitHtmlBody(queryMap, out);
       } catch (Throwable t) {
         out.print("Error while generating HTML: " + t.toString());
+        logger.log(Level.WARNING, "error while generating HTML", t);
       }
       out.print("</body>");
       out.print("</html>");
     } catch (Throwable t) {
-      Logger.getLogger(TracezZPageHandler.class.getName())
-          .warning("Error while generating HTML: " + t.toString());
+      logger.log(Level.WARNING, "error while generating HTML", t);
     }
   }
 }
