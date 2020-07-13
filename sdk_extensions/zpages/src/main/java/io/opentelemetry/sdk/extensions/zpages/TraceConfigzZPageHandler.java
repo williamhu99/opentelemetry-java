@@ -204,11 +204,11 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   /**
-   * Apply the action through the tracerProvider based on query parameters.
+   * Apply updated trace configuration through the tracerProvider based on query parameters.
    *
    * @param queryMap the map containing URL query parameters.
    */
-  private void applyActions(Map<String, String> queryMap) {
+  private void applyTraceConfig(Map<String, String> queryMap) {
     String action = queryMap.get(QUERY_STRING_ACTION);
     if (action.equals(QUERY_STRING_ACTION_CHANGE)) {
       TraceConfig.Builder newConfigBuilder = this.tracerProvider.getActiveTraceConfig().toBuilder();
@@ -280,8 +280,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</form>");
     out.print("<h2>Active Tracing Parameters</h2>");
     emitActiveTable(out);
-    // Apply action based on query parameters
-    applyActions(queryMap);
+    // Apply updated trace configuration based on query parameters
+    applyTraceConfig(queryMap);
   }
 
   @Override
