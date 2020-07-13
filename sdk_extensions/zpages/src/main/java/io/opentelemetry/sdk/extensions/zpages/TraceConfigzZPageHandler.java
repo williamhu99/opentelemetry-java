@@ -16,14 +16,21 @@
 
 package io.opentelemetry.sdk.extensions.zpages;
 
+import io.opentelemetry.sdk.trace.Samplers;
+import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.config.TraceConfig;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 final class TraceConfigzZPageHandler extends ZPageHandler {
   private static final String TRACE_CONFIGZ_URL = "/traceconfigz";
+  private static final String QUERY_STRING_ACTION = "action";
+  private static final String QUERY_STRING_ACTION_CHANGE = "change";
+  private static final String QUERY_STRING_ACTION_DEFAULT = "default";
   private static final String QUERY_STRING_SAMPLING_PROBABILITY = "samplingprobability";
   private static final String QUERY_STRING_MAX_NUM_OF_ATTRIBUTES = "maxnumofattributes";
   private static final String QUERY_STRING_MAX_NUM_OF_EVENTS = "maxnumbofevents";
@@ -34,10 +41,11 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       "maxnumofattributesperlink";
   // Background color used for zebra striping rows in table
   private static final String ZEBRA_STRIPE_COLOR = "#e6e6e6";
-  private final TraceConfig traceConfig;
+  private static final Logger logger = Logger.getLogger(TraceConfigzZPageHandler.class.getName());
+  private final TracerSdkProvider tracerProvider;
 
-  TraceConfigzZPageHandler(TraceConfig traceConfig) {
-    this.traceConfig = traceConfig;
+  TraceConfigzZPageHandler(TracerSdkProvider tracerProvider) {
+    this.tracerProvider = tracerProvider;
   }
 
   @Override
@@ -142,7 +150,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("Sampler")
-        .setParamValue(traceConfig.getSampler().getDescription())
+        .setParamValue(this.tracerProvider.getActiveTraceConfig().getSampler().getDescription())
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)
         .build()
@@ -150,7 +158,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributes")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributes()))
+        .setParamValue(
+            Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributes()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(true)
         .build()
@@ -158,7 +167,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfEvents")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfEvents()))
+        .setParamValue(
+            Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfEvents()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)
         .build()
@@ -166,7 +176,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfLinks")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfLinks()))
+        .setParamValue(
+            Integer.toString(this.tracerProvider.getActiveTraceConfig().getMaxNumberOfLinks()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(true)
         .build()
@@ -174,7 +185,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerEvent")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributesPerEvent()))
+        .setParamValue(
+            Integer.toString(
+                this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerEvent()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)
         .build()
@@ -182,7 +195,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     TraceConfigzActiveTableRow.builder()
         .setPrintStream(out)
         .setParamName("MaxNumOfAttributesPerLink")
-        .setParamValue(Integer.toString(traceConfig.getMaxNumberOfAttributesPerLink()))
+        .setParamValue(
+            Integer.toString(
+                this.tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerLink()))
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(true)
         .build()
@@ -191,34 +206,84 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   /**
+   * Apply updated trace configuration through the tracerProvider based on query parameters.
+   *
+   * @param queryMap the map containing URL query parameters.
+   */
+  private void applyTraceConfig(Map<String, String> queryMap) {
+    String action = queryMap.get(QUERY_STRING_ACTION);
+    if (action.equals(QUERY_STRING_ACTION_CHANGE)) {
+      TraceConfig.Builder newConfigBuilder = this.tracerProvider.getActiveTraceConfig().toBuilder();
+      String samplingProbabilityStr = queryMap.get(QUERY_STRING_SAMPLING_PROBABILITY);
+      if (!samplingProbabilityStr.isEmpty()) {
+        double samplingProbability = Double.parseDouble(samplingProbabilityStr);
+        newConfigBuilder.setSampler(Samplers.probability(samplingProbability));
+      }
+      String maxNumOfAttributesStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES);
+      if (!maxNumOfAttributesStr.isEmpty()) {
+        int maxNumOfAttributes = Integer.parseInt(maxNumOfAttributesStr);
+        newConfigBuilder.setMaxNumberOfAttributes(maxNumOfAttributes);
+      }
+      String maxNumOfEventsStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_EVENTS);
+      if (!maxNumOfEventsStr.isEmpty()) {
+        int maxNumOfEvents = Integer.parseInt(maxNumOfEventsStr);
+        newConfigBuilder.setMaxNumberOfEvents(maxNumOfEvents);
+      }
+      String maxNumOfLinksStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_LINKS);
+      if (!maxNumOfLinksStr.isEmpty()) {
+        int maxNumOfLinks = Integer.parseInt(maxNumOfLinksStr);
+        newConfigBuilder.setMaxNumberOfLinks(maxNumOfLinks);
+      }
+      String maxNumOfAttributesPerEventStr =
+          queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT);
+      if (!maxNumOfAttributesPerEventStr.isEmpty()) {
+        int maxNumOfAttributesPerEvent = Integer.parseInt(maxNumOfAttributesPerEventStr);
+        newConfigBuilder.setMaxNumberOfAttributesPerEvent(maxNumOfAttributesPerEvent);
+      }
+      String maxNumOfAttributesPerLinkStr =
+          queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT);
+      if (!maxNumOfAttributesPerLinkStr.isEmpty()) {
+        int maxNumOfAttributesPerLink = Integer.parseInt(maxNumOfAttributesPerLinkStr);
+        newConfigBuilder.setMaxNumberOfAttributesPerLink(maxNumOfAttributesPerLink);
+      }
+      this.tracerProvider.updateActiveTraceConfig(newConfigBuilder.build());
+    } else if (action.equals(QUERY_STRING_ACTION_DEFAULT)) {
+      TraceConfig defaultConfig = TraceConfig.getDefault().toBuilder().build();
+      this.tracerProvider.updateActiveTraceConfig(defaultConfig);
+    }
+  }
+
+  /**
    * Emits HTML body content to the {@link PrintStream} {@code out}. Content emitted by this
    * function should be enclosed by <body></body> tag.
    *
-   * @param queryMap the map containing URL query parameters
+   * @param queryMap the map containing URL query parameters.
    * @param out the {@link PrintStream} {@code out}.
    */
   private void emitHtmlBody(Map<String, String> queryMap, PrintStream out)
       throws UnsupportedEncodingException {
     out.print(
         "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
-            + ZPageLogo.logoBase64
+            + ZPageLogo.getLogoBase64()
             + "\" />");
     out.print("<h1>Trace Configuration</h1>");
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
-    out.print("<input type=\"hidden\" name=\"change\" value=\"\" />");
+    out.print(
+        "<input type=\"hidden\" name=\"action\" value=\"" + QUERY_STRING_ACTION_CHANGE + "\" />");
     emitChangeTable(out);
     // Button for submit
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Submit</button>");
     out.print("</form>");
     // Button for restore default
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
-    out.print("<input type=\"hidden\" name=\"default\" value=\"\" />");
+    out.print(
+        "<input type=\"hidden\" name=\"action\" value=\"" + QUERY_STRING_ACTION_DEFAULT + "\" />");
     out.print("<button class=\"button\" type=\"submit\" value=\"Submit\">Restore Default</button>");
     out.print("</form>");
     out.print("<h2>Active Tracing Parameters</h2>");
     emitActiveTable(out);
-    // deal with query map
-    queryMap.toString();
+    // Apply updated trace configuration based on query parameters
+    applyTraceConfig(queryMap);
   }
 
   @Override
@@ -231,7 +296,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       out.print("<meta charset=\"UTF-8\">");
       out.print(
           "<link rel=\"shortcut icon\" href=\"data:image/png;base64,"
-              + ZPageLogo.faviconBase64
+              + ZPageLogo.getFaviconBase64()
               + "\" type=\"image/png\">");
       out.print(
           "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300\""
@@ -246,11 +311,12 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         emitHtmlBody(queryMap, out);
       } catch (Throwable t) {
         out.print("Error while generating HTML: " + t.toString());
+        logger.log(Level.WARNING, "error while generating HTML", t);
       }
       out.print("</body>");
       out.print("</html>");
     } catch (Throwable t) {
-      System.err.print("Error while generating HTML: " + t.toString());
+      logger.log(Level.WARNING, "error while generating HTML", t);
     }
   }
 }
