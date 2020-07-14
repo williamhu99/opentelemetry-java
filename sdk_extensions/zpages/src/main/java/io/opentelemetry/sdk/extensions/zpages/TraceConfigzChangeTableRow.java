@@ -19,7 +19,7 @@ package io.opentelemetry.sdk.extensions.zpages;
 import java.io.PrintStream;
 
 /** Builder pattern class for emiting a single row of the change parameter table. */
-final class ChangeTableRow {
+final class TraceConfigzChangeTableRow {
   private final PrintStream out;
   private final String rowName;
   private final String paramName;
@@ -27,7 +27,7 @@ final class ChangeTableRow {
   private final String zebraStripeColor;
   private final boolean zebraStripe;
 
-  private ChangeTableRow(Builder builder) {
+  private TraceConfigzChangeTableRow(Builder builder) {
     out = builder.out;
     rowName = builder.rowName;
     paramName = builder.paramName;
@@ -44,8 +44,8 @@ final class ChangeTableRow {
     private String zebraStripeColor;
     private boolean zebraStripe;
 
-    public ChangeTableRow build() {
-      return new ChangeTableRow(this);
+    public TraceConfigzChangeTableRow build() {
+      return new TraceConfigzChangeTableRow(this);
     }
 
     /**

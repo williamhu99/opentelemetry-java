@@ -18,14 +18,14 @@ package io.opentelemetry.sdk.extensions.zpages;
 
 import java.io.PrintStream;
 
-final class ActiveTableRow {
+final class TraceConfigzActiveTableRow {
   private final PrintStream out;
   private final String paramName;
   private final String paramValue;
   private final String zebraStripeColor;
   private final boolean zebraStripe;
 
-  private ActiveTableRow(Builder builder) {
+  private TraceConfigzActiveTableRow(Builder builder) {
     out = builder.out;
     paramName = builder.paramName;
     paramValue = builder.paramValue;
@@ -40,8 +40,8 @@ final class ActiveTableRow {
     private String zebraStripeColor;
     private boolean zebraStripe;
 
-    public ActiveTableRow build() {
-      return new ActiveTableRow(this);
+    public TraceConfigzActiveTableRow build() {
+      return new TraceConfigzActiveTableRow(this);
     }
 
     /**

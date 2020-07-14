@@ -68,10 +68,11 @@ public final class ZPageServer {
       TracezSpanProcessor.newBuilder().build();
   private static final TracezDataAggregator tracezDataAggregator =
       new TracezDataAggregator(tracezSpanProcessor);
+  private static final TracerSdkProvider tracerProvider = OpenTelemetrySdk.getTracerProvider();
   // Handler for /tracez page
   private static final ZPageHandler tracezZPageHandler =
       new TracezZPageHandler(tracezDataAggregator);
-  private static final TracerSdkProvider tracerProvider = OpenTelemetrySdk.getTracerProvider();
+  // Handler for /traceconfigz page
   private static final ZPageHandler traceConfigzZPageHandler =
       new TraceConfigzZPageHandler(tracerProvider);
 
@@ -85,7 +86,6 @@ public final class ZPageServer {
   /** Function that adds the {@link TracezSpanProcessor} to the {@link tracerSdkProvider}. */
   private static void addTracezSpanProcessor() {
     if (isTracezSpanProcesserAdded.compareAndSet(false, true)) {
-      TracerSdkProvider tracerProvider = OpenTelemetrySdk.getTracerProvider();
       tracerProvider.addSpanProcessor(tracezSpanProcessor);
     }
   }
@@ -102,12 +102,26 @@ public final class ZPageServer {
    *
    * <p>This method will add the TracezSpanProcessor to the tracerProvider, it should only be called
    * once.
+   *
+   * @param server the {@link HttpServer} for the page to register to.
    */
   static void registerTracezZPageHandler(HttpServer server) {
     addTracezSpanProcessor();
     server.createContext(tracezZPageHandler.getUrlPath(), new ZPageHttpHandler(tracezZPageHandler));
   }
 
+  /**
+   * Registers a {@code ZPageHandler} for tracing config. The page displays information about all
+   * active configuration and allow changing the active configuration.
+   *
+   * <p>It displays a change table which allows users to change active configuration.
+   *
+   * <p>It displays an active value table which displays current active configuration.
+   *
+   * <p>Refreshing the page will show the updated active configuration.
+   *
+   * @param server the {@link HttpServer} for the page to register to.
+   */
   static void registerTraceConfigzZPageHandler(HttpServer server) {
     server.createContext(
         traceConfigzZPageHandler.getUrlPath(), new ZPageHttpHandler(traceConfigzZPageHandler));
@@ -116,7 +130,7 @@ public final class ZPageServer {
   /**
    * Registers all zPages to the given {@link HttpServer} {@code server}.
    *
-   * @param server the server that exports the zPages.
+   * @param server the {@link HttpServer} that exports the zPages.
    */
   public static void registerAllPagesToHttpServer(HttpServer server) {
     // For future zPages, register them to the server in here
