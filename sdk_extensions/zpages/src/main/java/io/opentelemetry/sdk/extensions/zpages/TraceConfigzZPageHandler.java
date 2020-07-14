@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 final class TraceConfigzZPageHandler extends ZPageHandler {
@@ -40,6 +41,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       "maxnumofattributesperlink";
   // Background color used for zebra striping rows in table
   private static final String ZEBRA_STRIPE_COLOR = "#e6e6e6";
+  private static final Logger logger = Logger.getLogger(TraceConfigzZPageHandler.class.getName());
   private final TracerSdkProvider tracerProvider;
 
   TraceConfigzZPageHandler(TracerSdkProvider tracerProvider) {
@@ -204,11 +206,11 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   }
 
   /**
-   * Apply the action through the tracerProvider based on query parameters.
+   * Apply updated trace configuration through the tracerProvider based on query parameters.
    *
    * @param queryMap the map containing URL query parameters.
    */
-  private void applyActions(Map<String, String> queryMap) {
+  private void applyTraceConfig(Map<String, String> queryMap) {
     String action = queryMap.get(QUERY_STRING_ACTION);
     if (action.equals(QUERY_STRING_ACTION_CHANGE)) {
       TraceConfig.Builder newConfigBuilder = this.tracerProvider.getActiveTraceConfig().toBuilder();
@@ -280,8 +282,8 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</form>");
     out.print("<h2>Active Tracing Parameters</h2>");
     emitActiveTable(out);
-    // Apply action based on query parameters
-    applyActions(queryMap);
+    // Apply updated trace configuration based on query parameters
+    applyTraceConfig(queryMap);
   }
 
   @Override
@@ -309,12 +311,12 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         emitHtmlBody(queryMap, out);
       } catch (Throwable t) {
         out.print("Error while generating HTML: " + t.toString());
+        logger.log(Level.WARNING, "error while generating HTML", t);
       }
       out.print("</body>");
       out.print("</html>");
     } catch (Throwable t) {
-      Logger.getLogger(TracezZPageHandler.class.getName())
-          .warning("Error while generating HTML: " + t.toString());
+      logger.log(Level.WARNING, "error while generating HTML", t);
     }
   }
 }

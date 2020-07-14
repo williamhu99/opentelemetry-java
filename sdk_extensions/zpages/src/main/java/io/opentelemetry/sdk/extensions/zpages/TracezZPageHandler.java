@@ -44,7 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
@@ -100,6 +100,7 @@ final class TracezZPageHandler extends ZPageHandler {
   // Map from LatencyBoundary to human readable string on the UI
   private static final ImmutableMap<LatencyBoundary, String> LATENCY_BOUNDARIES_STRING_MAP =
       buildLatencyBoundaryStringMap();
+  private static final Logger logger = Logger.getLogger(TracezZPageHandler.class.getName());
   @Nullable private final TracezDataAggregator dataAggregator;
 
   /** Constructs a new {@code TracezZPageHandler}. */
@@ -240,12 +241,12 @@ final class TracezZPageHandler extends ZPageHandler {
   private static void emitSpanNameAndCount(
       PrintStream out, String spanName, int count, SampleType type) {
     out.print(
-        "<p class=\"align-center\"><b> Span Name: " + htmlEscaper().escape(spanName) + " </b></p>");
+        "<p class=\"align-center\"><b> Span Name: " + htmlEscaper().escape(spanName) + "</b></p>");
     String typeString =
         type == SampleType.RUNNING
             ? "running"
             : type == SampleType.LATENCY ? "latency samples" : "error samples";
-    out.print("<p class=\"align-center\"><b> Number of " + typeString + ": " + count + " </b></p>");
+    out.print("<p class=\"align-center\"><b> Number of " + typeString + ": " + count + "</b></p>");
   }
 
   private static void emitSpanDetails(
@@ -381,12 +382,15 @@ final class TracezZPageHandler extends ZPageHandler {
   private static String renderAttributes(ReadableAttributes attributes) {
     final StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append("Attributes:{");
-    final AtomicBoolean first = new AtomicBoolean(true);
     attributes.forEach(
         new KeyValueConsumer<AttributeValue>() {
+          private boolean first = true;
+
           @Override
           public void consume(String key, AttributeValue value) {
-            if (!first.getAndSet(false)) {
+            if (first) {
+              first = false;
+            } else {
               stringBuilder.append(", ");
             }
             stringBuilder.append(key);
@@ -465,7 +469,7 @@ final class TracezZPageHandler extends ZPageHandler {
         List<SpanData> spans = null;
         SampleType type = SampleType.fromString(typeStr);
         if (type == SampleType.UNKNOWN) {
-          // Type of sample is garbage value
+          // Type of unknown is garbage value
           return;
         } else if (type == SampleType.RUNNING) {
           // Display running span
@@ -535,12 +539,12 @@ final class TracezZPageHandler extends ZPageHandler {
         emitHtmlBody(queryMap, out);
       } catch (Throwable t) {
         out.print("Error while generating HTML: " + t.toString());
+        logger.log(Level.WARNING, "error while generating HTML", t);
       }
       out.print("</body>");
       out.print("</html>");
     } catch (Throwable t) {
-      Logger.getLogger(TracezZPageHandler.class.getName())
-          .warning("Error while generating HTML: " + t.toString());
+      logger.log(Level.WARNING, "error while generating HTML", t);
     }
   }
 
