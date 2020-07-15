@@ -21,7 +21,6 @@ import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.config.TraceConfig;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -212,7 +211,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    */
   private void applyTraceConfig(Map<String, String> queryMap) {
     String action = queryMap.get(QUERY_STRING_ACTION);
-    if (action.equals(QUERY_STRING_ACTION_CHANGE)) {
+    if (action != null && action.equals(QUERY_STRING_ACTION_CHANGE)) {
       TraceConfig.Builder newConfigBuilder = this.tracerProvider.getActiveTraceConfig().toBuilder();
       String samplingProbabilityStr = queryMap.get(QUERY_STRING_SAMPLING_PROBABILITY);
       if (!samplingProbabilityStr.isEmpty()) {
@@ -247,7 +246,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         newConfigBuilder.setMaxNumberOfAttributesPerLink(maxNumOfAttributesPerLink);
       }
       this.tracerProvider.updateActiveTraceConfig(newConfigBuilder.build());
-    } else if (action.equals(QUERY_STRING_ACTION_DEFAULT)) {
+    } else if (action != null && action.equals(QUERY_STRING_ACTION_DEFAULT)) {
       TraceConfig defaultConfig = TraceConfig.getDefault().toBuilder().build();
       this.tracerProvider.updateActiveTraceConfig(defaultConfig);
     }
@@ -260,8 +259,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    * @param queryMap the map containing URL query parameters.
    * @param out the {@link PrintStream} {@code out}.
    */
-  private void emitHtmlBody(Map<String, String> queryMap, PrintStream out)
-      throws UnsupportedEncodingException {
+  private void emitHtmlBody(Map<String, String> queryMap, PrintStream out) {
     out.print(
         "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
             + ZPageLogo.getLogoBase64()
