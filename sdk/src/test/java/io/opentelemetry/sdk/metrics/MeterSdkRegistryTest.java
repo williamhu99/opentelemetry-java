@@ -25,7 +25,6 @@ import io.opentelemetry.sdk.common.InstrumentationLibraryInfo;
 import io.opentelemetry.sdk.internal.TestClock;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricData.Descriptor;
-import io.opentelemetry.sdk.metrics.data.MetricData.Descriptor.Type;
 import io.opentelemetry.sdk.metrics.data.MetricData.LongPoint;
 import io.opentelemetry.sdk.resources.Resource;
 import java.util.Collections;
@@ -102,16 +101,18 @@ public class MeterSdkRegistryTest {
     LongCounterSdk longCounter2 = meterSdk2.longCounterBuilder("testLongCounter").build();
     longCounter2.add(10, Labels.empty());
 
-    assertThat(meterRegistry.getMetricProducer().getAllMetrics())
+    assertThat(meterRegistry.getMetricProducer().collectAllMetrics())
         .containsExactly(
             MetricData.create(
-                Descriptor.create("testLongCounter", "", "1", Type.MONOTONIC_LONG, Labels.empty()),
+                Descriptor.create(
+                    "testLongCounter", "", "1", Descriptor.Type.MONOTONIC_LONG, Labels.empty()),
                 Resource.getEmpty(),
                 meterSdk1.getInstrumentationLibraryInfo(),
                 Collections.singletonList(
                     LongPoint.create(testClock.now(), testClock.now(), Labels.empty(), 10))),
             MetricData.create(
-                Descriptor.create("testLongCounter", "", "1", Type.MONOTONIC_LONG, Labels.empty()),
+                Descriptor.create(
+                    "testLongCounter", "", "1", Descriptor.Type.MONOTONIC_LONG, Labels.empty()),
                 Resource.getEmpty(),
                 meterSdk2.getInstrumentationLibraryInfo(),
                 Collections.singletonList(

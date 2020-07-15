@@ -28,7 +28,6 @@ import io.opentelemetry.sdk.internal.TestClock;
 import io.opentelemetry.sdk.metrics.StressTestRunner.OperationUpdater;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricData.Descriptor;
-import io.opentelemetry.sdk.metrics.data.MetricData.Descriptor.Type;
 import io.opentelemetry.sdk.metrics.data.MetricData.SummaryPoint;
 import io.opentelemetry.sdk.metrics.data.MetricData.ValueAtPercentile;
 import io.opentelemetry.sdk.resources.Resource;
@@ -57,7 +56,7 @@ public class LongValueRecorderSdkTest {
   private final MeterProviderSharedState meterProviderSharedState =
       MeterProviderSharedState.create(testClock, RESOURCE);
   private final MeterSdk testSdk =
-      new MeterSdk(meterProviderSharedState, INSTRUMENTATION_LIBRARY_INFO);
+      new MeterSdk(meterProviderSharedState, INSTRUMENTATION_LIBRARY_INFO, new ViewRegistry());
 
   @Test
   public void record_PreventNullLabels() {
@@ -91,7 +90,7 @@ public class LongValueRecorderSdkTest {
                     "testRecorder",
                     "My very own counter",
                     "ms",
-                    Type.SUMMARY,
+                    Descriptor.Type.SUMMARY,
                     Labels.of("sk1", "sv1")),
                 RESOURCE,
                 INSTRUMENTATION_LIBRARY_INFO,
@@ -119,7 +118,7 @@ public class LongValueRecorderSdkTest {
                     "testRecorder",
                     "My very own counter",
                     "ms",
-                    Type.SUMMARY,
+                    Descriptor.Type.SUMMARY,
                     Labels.of("sk1", "sv1")),
                 RESOURCE,
                 INSTRUMENTATION_LIBRARY_INFO,
@@ -135,7 +134,7 @@ public class LongValueRecorderSdkTest {
     assertThat(metricDataList)
         .containsExactly(
             MetricData.create(
-                Descriptor.create("testRecorder", "", "1", Type.SUMMARY, Labels.empty()),
+                Descriptor.create("testRecorder", "", "1", Descriptor.Type.SUMMARY, Labels.empty()),
                 RESOURCE,
                 INSTRUMENTATION_LIBRARY_INFO,
                 Collections.singletonList(
@@ -180,7 +179,7 @@ public class LongValueRecorderSdkTest {
                   323,
                   valueAtPercentiles(-121, 321)));
 
-      // Repeat to prove we keep previous values.
+      // Repeat to prove we don't keep previous values.
       testClock.advanceNanos(SECOND_NANOS);
       boundMeasure.record(222);
       longMeasure.record(17, Labels.empty());
@@ -193,14 +192,19 @@ public class LongValueRecorderSdkTest {
       assertThat(metricData.getPoints())
           .containsExactly(
               SummaryPoint.create(
-                  startTime, secondCollect, Labels.empty(), 3, 15, valueAtPercentiles(-14, 17)),
+                  startTime + SECOND_NANOS,
+                  secondCollect,
+                  Labels.empty(),
+                  1,
+                  17,
+                  valueAtPercentiles(17, 17)),
               SummaryPoint.create(
-                  startTime,
+                  startTime + SECOND_NANOS,
                   secondCollect,
                   Labels.of("K", "V"),
-                  4,
-                  545,
-                  valueAtPercentiles(-121, 321)));
+                  1,
+                  222,
+                  valueAtPercentiles(222, 222)));
     } finally {
       boundMeasure.unbind();
     }
