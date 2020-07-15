@@ -28,7 +28,6 @@ import io.opentelemetry.sdk.internal.TestClock;
 import io.opentelemetry.sdk.metrics.StressTestRunner.OperationUpdater;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricData.Descriptor;
-import io.opentelemetry.sdk.metrics.data.MetricData.Descriptor.Type;
 import io.opentelemetry.sdk.metrics.data.MetricData.DoublePoint;
 import io.opentelemetry.sdk.resources.Resource;
 import java.util.List;
@@ -53,7 +52,7 @@ public class DoubleCounterSdkTest {
   private final MeterProviderSharedState meterProviderSharedState =
       MeterProviderSharedState.create(testClock, RESOURCE);
   private final MeterSdk testSdk =
-      new MeterSdk(meterProviderSharedState, INSTRUMENTATION_LIBRARY_INFO);
+      new MeterSdk(meterProviderSharedState, INSTRUMENTATION_LIBRARY_INFO, new ViewRegistry());
 
   @Test
   public void add_PreventNullLabels() {
@@ -87,7 +86,7 @@ public class DoubleCounterSdkTest {
                 "testCounter",
                 "My very own counter",
                 "ms",
-                Type.MONOTONIC_DOUBLE,
+                Descriptor.Type.MONOTONIC_DOUBLE,
                 Labels.of("sk1", "sv1")));
     assertThat(metricData.getResource()).isEqualTo(RESOURCE);
     assertThat(metricData.getInstrumentationLibraryInfo()).isEqualTo(INSTRUMENTATION_LIBRARY_INFO);
