@@ -465,9 +465,9 @@ final class TracezZPageHandler extends ZPageHandler {
       return;
     }
     out.print(
-        "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
+        "<a href=\"/\"><img style=\"height: 90px;\" src=\"data:image/png;base64,"
             + ZPageLogo.getLogoBase64()
-            + "\" />");
+            + "\" /></a>");
     out.print("<h1>TraceZ Summary</h1>");
     emitSummaryTable(out);
     // spanName will be null if the query parameter doesn't exist in the URL

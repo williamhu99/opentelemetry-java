@@ -19,6 +19,7 @@ package io.opentelemetry.sdk.extensions.zpages;
 import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 import com.sun.net.httpserver.HttpServer;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
@@ -75,6 +76,9 @@ public final class ZPageServer {
   // Handler for /traceconfigz page
   private static final ZPageHandler traceConfigzZPageHandler =
       new TraceConfigzZPageHandler(tracerProvider);
+  // Handler for index page
+  private static final ZPageHandler indexZPageHandler =
+      new IndexZPageHandler(ImmutableList.of(tracezZPageHandler, traceConfigzZPageHandler));
 
   private static final Object mutex = new Object();
   private static final AtomicBoolean isTracezSpanProcesserAdded = new AtomicBoolean(false);
@@ -88,6 +92,10 @@ public final class ZPageServer {
     if (isTracezSpanProcesserAdded.compareAndSet(false, true)) {
       tracerProvider.addSpanProcessor(tracezSpanProcessor);
     }
+  }
+
+  static void registerIndexZPageHandler(HttpServer server) {
+    server.createContext(indexZPageHandler.getUrlPath(), new ZPageHttpHandler(indexZPageHandler));
   }
 
   /**
@@ -134,6 +142,7 @@ public final class ZPageServer {
    */
   public static void registerAllPagesToHttpServer(HttpServer server) {
     // For future zPages, register them to the server in here
+    registerIndexZPageHandler(server);
     registerTracezZPageHandler(server);
     registerTraceConfigzZPageHandler(server);
   }

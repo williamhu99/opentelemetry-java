@@ -52,6 +52,16 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     return TRACE_CONFIGZ_URL;
   }
 
+  @Override
+  public String getPageName() {
+    return "TraceConfigZ";
+  }
+
+  @Override
+  public String getPageDescription() {
+    return "TraceConfigZ";
+  }
+
   /**
    * Emits CSS styles to the {@link PrintStream} {@code out}. Content emited by this function should
    * be enclosed by <head></head> tag. s
@@ -261,9 +271,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    */
   private void emitHtmlBody(Map<String, String> queryMap, PrintStream out) {
     out.print(
-        "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
+        "<a href=\"/\"><img style=\"height: 90px;\" src=\"data:image/png;base64,"
             + ZPageLogo.getLogoBase64()
-            + "\" />");
+            + "\" /></a>");
     out.print("<h1>Trace Configuration</h1>");
     out.print("<form class=\"form-flex\" action=\"" + TRACE_CONFIGZ_URL + "\" method=\"get\">");
     out.print(
