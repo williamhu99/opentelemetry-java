@@ -60,7 +60,7 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 @ThreadSafe
 public final class ZPageServer {
-  // The maximum number of queued incoming connections allowed on the HttpServer listening socket.
+  // The maximum number of queued incoming connections allowed on the HttpServer listening socket
   private static final int HTTPSERVER_BACKLOG = 5;
   // Length of time to wait for the HttpServer to stop
   private static final int HTTPSERVER_STOP_DELAY = 1;
@@ -76,9 +76,9 @@ public final class ZPageServer {
   // Handler for /traceconfigz page
   private static final ZPageHandler traceConfigzZPageHandler =
       new TraceConfigzZPageHandler(tracerProvider);
-  // Handler for index page
+  // Handler for index page, **please include all available zPages in the constructor**
   private static final ZPageHandler indexZPageHandler =
-      new IndexZPageHandler(ImmutableList.of(tracezZPageHandler, traceConfigzZPageHandler));
+      new IndexZPageHandler(ImmutableList.of(tracezZPageHandler));
 
   private static final Object mutex = new Object();
   private static final AtomicBoolean isTracezSpanProcesserAdded = new AtomicBoolean(false);
@@ -94,12 +94,18 @@ public final class ZPageServer {
     }
   }
 
+  /**
+   * Registers a {@link ZPageHandler} for the index page of zPages. The page displays information
+   * about all available zPages with links to those zPages.
+   *
+   * @param server the server that exports the zPages.
+   */
   static void registerIndexZPageHandler(HttpServer server) {
     server.createContext(indexZPageHandler.getUrlPath(), new ZPageHttpHandler(indexZPageHandler));
   }
 
   /**
-   * Registers a {@code ZPageHandler} for tracing debug to the server. The page displays information
+   * Registers a {@link ZPageHandler} for tracing debug to the server. The page displays information
    * about all running spans and all sampled spans based on latency and error.
    *
    * <p>It displays a summary table which contains one row for each span name and data about number

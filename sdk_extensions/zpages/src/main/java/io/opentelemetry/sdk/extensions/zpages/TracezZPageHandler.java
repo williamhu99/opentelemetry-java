@@ -83,7 +83,7 @@ final class TracezZPageHandler extends ZPageHandler {
   private static final String TRACEZ_URL = "/tracez";
   private static final String TRACEZ_NAME = "TraceZ";
   private static final String TRACEZ_DESCRIPTION =
-      "/tracez displays information about all the running spans"
+      "TraceZ displays information about all the running spans"
           + " and all the sampled spans based on latency and errors";
   // Background color used for zebra striping rows of summary table
   private static final String ZEBRA_STRIPE_COLOR = "#e6e6e6";
