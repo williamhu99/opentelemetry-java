@@ -98,7 +98,7 @@ public final class ZPageServer {
    * Registers a {@link ZPageHandler} for the index page of zPages. The page displays information
    * about all available zPages with links to those zPages.
    *
-   * @param server the server that exports the zPages.
+   * @param server the {@link HttpServer} for the page to register to.
    */
   static void registerIndexZPageHandler(HttpServer server) {
     server.createContext(indexZPageHandler.getUrlPath(), new ZPageHttpHandler(indexZPageHandler));
@@ -144,7 +144,7 @@ public final class ZPageServer {
   /**
    * Registers all zPages to the given {@link HttpServer} {@code server}.
    *
-   * @param server the {@link HttpServer} that exports the zPages.
+   * @param server the {@link HttpServer} for the page to register to.
    */
   public static void registerAllPagesToHttpServer(HttpServer server) {
     // For future zPages, register them to the server in here
