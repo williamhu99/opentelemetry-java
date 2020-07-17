@@ -18,6 +18,7 @@ package io.opentelemetry.sdk.extensions.zpages;
 
 import static com.google.common.html.HtmlEscapers.htmlEscaper;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.opentelemetry.common.AttributeValue;
 import io.opentelemetry.common.ReadableAttributes;
@@ -81,6 +82,10 @@ final class TracezZPageHandler extends ZPageHandler {
   }
 
   private static final String TRACEZ_URL = "/tracez";
+  private static final String TRACEZ_NAME = "TraceZ";
+  private static final String TRACEZ_DESCRIPTION =
+      "TraceZ displays information about all the running spans"
+          + " and all the sampled spans based on latency and errors";
   // Background color used for zebra striping rows of summary table
   private static final String ZEBRA_STRIPE_COLOR = "#e6e6e6";
   // Color for sampled traceIds
@@ -111,6 +116,16 @@ final class TracezZPageHandler extends ZPageHandler {
   @Override
   public String getUrlPath() {
     return TRACEZ_URL;
+  }
+
+  @Override
+  public String getPageName() {
+    return TRACEZ_NAME;
+  }
+
+  @Override
+  public String getPageDescription() {
+    return TRACEZ_DESCRIPTION;
   }
 
   /**
@@ -450,11 +465,10 @@ final class TracezZPageHandler extends ZPageHandler {
       out.print("OpenTelemetry implementation not available.");
       return;
     }
-    // Link to OpenTelemetry Logo
     out.print(
-        "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
+        "<a href=\"/\"><img style=\"height: 90px;\" src=\"data:image/png;base64,"
             + ZPageLogo.getLogoBase64()
-            + "\" />");
+            + "\" /></a>");
     out.print("<h1>TraceZ Summary</h1>");
     emitSummaryTable(out);
     // spanName will be null if the query parameter doesn't exist in the URL
@@ -473,7 +487,6 @@ final class TracezZPageHandler extends ZPageHandler {
         } else if (type == SampleType.RUNNING) {
           // Display running span
           spans = dataAggregator.getRunningSpans(spanName);
-          Collections.sort(spans, new SpanDataComparator(/* incremental= */ true));
         } else {
           String subtypeStr = queryMap.get(PARAM_SAMPLE_SUB_TYPE);
           if (subtypeStr != null) {
@@ -490,7 +503,6 @@ final class TracezZPageHandler extends ZPageHandler {
                       spanName,
                       latencyBoundary.getLatencyLowerBound(),
                       latencyBoundary.getLatencyUpperBound());
-              Collections.sort(spans, new SpanDataComparator(/* incremental= */ false));
             } else {
               if (subtype < 0 || subtype >= CanonicalCode.values().length) {
                 // N/A or out-of-bound cueck for error based subtype, valid values: [0, 15]
@@ -498,7 +510,6 @@ final class TracezZPageHandler extends ZPageHandler {
               }
               // Display error based span
               spans = dataAggregator.getErrorSpans(spanName);
-              Collections.sort(spans, new SpanDataComparator(/* incremental= */ false));
             }
           }
         }
@@ -507,6 +518,8 @@ final class TracezZPageHandler extends ZPageHandler {
 
         if (spans != null) {
           Formatter formatter = new Formatter(out, Locale.US);
+          spans =
+              ImmutableList.sortedCopyOf(new SpanDataComparator(/* incremental= */ true), spans);
           emitSpanDetails(out, formatter, spans);
         }
       }
