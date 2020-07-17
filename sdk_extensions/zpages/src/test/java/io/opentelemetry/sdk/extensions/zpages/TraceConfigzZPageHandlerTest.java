@@ -18,52 +18,69 @@ package io.opentelemetry.sdk.extensions.zpages;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.trace.Samplers;
 import io.opentelemetry.sdk.trace.TracerSdkProvider;
+import io.opentelemetry.sdk.trace.config.TraceConfig;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.MockitoRule;
+import org.junit.runners.JUnit4;
 
 /** Unit tests for {@link TraceConfigzZPageHandler}. */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4.class)
 public final class TraceConfigzZPageHandlerTest {
-  @Mock private TracerSdkProvider tracerProvider;
-  @Mock private Map<String, String> queryMap;
-
-  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+  private static final TracerSdkProvider tracerProvider = OpenTelemetrySdk.getTracerProvider();
+  private static final Map<String, String> emptyQueryMap = ImmutableMap.of();
 
   @Test
   public void changeTable_emitRowsCorrectly() {
     OutputStream output = new ByteArrayOutputStream();
-    String samplingProbability = "samplingprobability";
-    String maxNumOfAttributes = "maxnumofattributes";
-    String maxNumOfEvents = "maxnumbofevents";
-    String maxNumOfLinks = "maxnumoflinks";
-    String maxNumOfAttributesPerEvent = "maxnumofattributesperevent";
-    String maxNumOfAttributesPerLink = "maxnumofattributesperlink";
+    String querySamplingProbability = "samplingprobability";
+    String queryMaxNumOfAttributes = "maxnumofattributes";
+    String queryMaxNumOfEvents = "maxnumbofevents";
+    String queryMaxNumOfLinks = "maxnumoflinks";
+    String queryMaxNumOfAttributesPerEvent = "maxnumofattributesperevent";
+    String queryMaxNumOfAttributesPerLink = "maxnumofattributesperlink";
 
     TraceConfigzZPageHandler traceConfigzZPageHandler =
         new TraceConfigzZPageHandler(tracerProvider);
-    traceConfigzZPageHandler.emitHtml(queryMap, output);
+    traceConfigzZPageHandler.emitHtml(emptyQueryMap, output);
 
     assertThat(output.toString()).contains("SamplingProbability to");
-    assertThat(output.toString()).contains("name=" + samplingProbability);
+    assertThat(output.toString()).contains("name=" + querySamplingProbability);
+    assertThat(output.toString())
+        .contains("(" + TraceConfig.getDefault().getSampler().getDescription() + ")");
     assertThat(output.toString()).contains("MaxNumberOfAttributes to");
-    assertThat(output.toString()).contains("name=" + maxNumOfAttributes);
+    assertThat(output.toString()).contains("name=" + queryMaxNumOfAttributes);
+    assertThat(output.toString())
+        .contains(
+            "(" + Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributes()) + ")");
     assertThat(output.toString()).contains("MaxNumberOfEvents to");
-    assertThat(output.toString()).contains("name=" + maxNumOfEvents);
+    assertThat(output.toString()).contains("name=" + queryMaxNumOfEvents);
+    assertThat(output.toString())
+        .contains("(" + Integer.toString(TraceConfig.getDefault().getMaxNumberOfEvents()) + ")");
     assertThat(output.toString()).contains("MaxNumberOfLinks to");
-    assertThat(output.toString()).contains("name=" + maxNumOfLinks);
+    assertThat(output.toString()).contains("name=" + queryMaxNumOfLinks);
+    assertThat(output.toString())
+        .contains("(" + Integer.toString(TraceConfig.getDefault().getMaxNumberOfLinks()) + ")");
     assertThat(output.toString()).contains("MaxNumberOfAttributesPerEvent to");
-    assertThat(output.toString()).contains("name=" + maxNumOfAttributesPerEvent);
+    assertThat(output.toString()).contains("name=" + queryMaxNumOfAttributesPerEvent);
+    assertThat(output.toString())
+        .contains(
+            "("
+                + Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent())
+                + ")");
     assertThat(output.toString()).contains("MaxNumberOfAttributesPerLink to");
-    assertThat(output.toString()).contains("name=" + maxNumOfAttributesPerLink);
+    assertThat(output.toString()).contains("name=" + queryMaxNumOfAttributesPerLink);
+    assertThat(output.toString())
+        .contains(
+            "("
+                + Integer.toString(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink())
+                + ")");
   }
 
   @Test
@@ -72,13 +89,115 @@ public final class TraceConfigzZPageHandlerTest {
 
     TraceConfigzZPageHandler traceConfigzZPageHandler =
         new TraceConfigzZPageHandler(tracerProvider);
-    traceConfigzZPageHandler.emitHtml(queryMap, output);
+    traceConfigzZPageHandler.emitHtml(emptyQueryMap, output);
 
     assertThat(output.toString()).contains("Sampler");
+    assertThat(output.toString())
+        .contains(">" + tracerProvider.getActiveTraceConfig().getSampler().getDescription() + "<");
     assertThat(output.toString()).contains("MaxNumberOfAttributes");
+    assertThat(output.toString())
+        .contains(
+            ">"
+                + Integer.toString(tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributes())
+                + "<");
     assertThat(output.toString()).contains("MaxNumberOfEvents");
+    assertThat(output.toString())
+        .contains(
+            ">"
+                + Integer.toString(tracerProvider.getActiveTraceConfig().getMaxNumberOfEvents())
+                + "<");
     assertThat(output.toString()).contains("MaxNumberOfLinks");
+    assertThat(output.toString())
+        .contains(
+            ">"
+                + Integer.toString(tracerProvider.getActiveTraceConfig().getMaxNumberOfLinks())
+                + "<");
     assertThat(output.toString()).contains("MaxNumberOfAttributesPerEvent");
+    assertThat(output.toString())
+        .contains(
+            ">"
+                + Integer.toString(
+                    tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerEvent())
+                + "<");
     assertThat(output.toString()).contains("MaxNumberOfAttributesPerLink");
+    assertThat(output.toString())
+        .contains(
+            ">"
+                + Integer.toString(
+                    tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerLink())
+                + "<");
+  }
+
+  @Test
+  public void appliesChangesCorrectly_formSubmit() {
+    OutputStream output = new ByteArrayOutputStream();
+    String querySamplingProbability = "samplingprobability";
+    String queryMaxNumOfAttributes = "maxnumofattributes";
+    String queryMaxNumOfEvents = "maxnumbofevents";
+    String queryMaxNumOfLinks = "maxnumoflinks";
+    String queryMaxNumOfAttributesPerEvent = "maxnumofattributesperevent";
+    String queryMaxNumOfAttributesPerLink = "maxnumofattributesperlink";
+    String newSamplingProbability = "0.001";
+    String newMaxNumOfAttributes = "16";
+    String newMaxNumOfEvents = "16";
+    String newMaxNumOfLinks = "16";
+    String newMaxNumOfAttributesPerEvent = "16";
+    String newMaxNumOfAttributesPerLink = "16";
+
+    Map<String, String> queryMap =
+        new ImmutableMap.Builder<String, String>()
+            .put("action", "change")
+            .put(querySamplingProbability, newSamplingProbability)
+            .put(queryMaxNumOfAttributes, newMaxNumOfAttributes)
+            .put(queryMaxNumOfEvents, newMaxNumOfEvents)
+            .put(queryMaxNumOfLinks, newMaxNumOfLinks)
+            .put(queryMaxNumOfAttributesPerEvent, newMaxNumOfAttributesPerEvent)
+            .put(queryMaxNumOfAttributesPerLink, newMaxNumOfAttributesPerLink)
+            .build();
+
+    TraceConfigzZPageHandler traceConfigzZPageHandler =
+        new TraceConfigzZPageHandler(tracerProvider);
+    traceConfigzZPageHandler.emitHtml(queryMap, output);
+
+    assertThat(output.toString()).contains("<meta");
+    assertThat(tracerProvider.getActiveTraceConfig().getSampler().getDescription())
+        .isEqualTo(
+            Samplers.probability(Double.parseDouble(newSamplingProbability)).getDescription());
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributes())
+        .isEqualTo(Integer.parseInt(newMaxNumOfAttributes));
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfEvents())
+        .isEqualTo(Integer.parseInt(newMaxNumOfEvents));
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfLinks())
+        .isEqualTo(Integer.parseInt(newMaxNumOfLinks));
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerEvent())
+        .isEqualTo(Integer.parseInt(newMaxNumOfAttributesPerEvent));
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerLink())
+        .isEqualTo(Integer.parseInt(newMaxNumOfAttributesPerLink));
+  }
+
+  @Test
+  public void appliesChangesCorrectly_restoreDefault() {
+    OutputStream output = new ByteArrayOutputStream();
+
+    Map<String, String> queryMap =
+        new ImmutableMap.Builder<String, String>().put("action", "default").build();
+
+    TraceConfigzZPageHandler traceConfigzZPageHandler =
+        new TraceConfigzZPageHandler(tracerProvider);
+    traceConfigzZPageHandler.emitHtml(queryMap, output);
+
+    assertThat(output.toString()).contains("<meta");
+    assertThat(tracerProvider.getActiveTraceConfig().getSampler().getDescription())
+        .isEqualTo(TraceConfig.getDefault().getSampler().getDescription());
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributes())
+        .isEqualTo(TraceConfig.getDefault().getMaxNumberOfAttributes());
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfEvents())
+        .isEqualTo(TraceConfig.getDefault().getMaxNumberOfEvents());
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfLinks())
+        .isEqualTo(TraceConfig.getDefault().getMaxNumberOfLinks());
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerEvent())
+        .isEqualTo(TraceConfig.getDefault().getMaxNumberOfAttributesPerEvent());
+    assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributesPerLink())
+        .isEqualTo(TraceConfig.getDefault().getMaxNumberOfAttributesPerLink());
   }
 }
