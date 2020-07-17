@@ -217,10 +217,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   /**
    * Apply updated trace configuration through the tracerProvider based on query parameters.
    *
-   * @param out the {@link PrintStream} {@code out}.
    * @param queryMap the map containing URL query parameters.
    */
-  private void applyTraceConfig(PrintStream out, Map<String, String> queryMap) {
+  private void applyTraceConfig(Map<String, String> queryMap) {
     String action = queryMap.get(QUERY_STRING_ACTION);
     if (action == null) {
       return;
@@ -264,7 +263,6 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       TraceConfig defaultConfig = TraceConfig.getDefault().toBuilder().build();
       this.tracerProvider.updateActiveTraceConfig(defaultConfig);
     }
-    out.print("<meta http-equiv=\"refresh\" content=\"1; url='" + TRACE_CONFIGZ_URL + "'\" />");
   }
 
   /**
@@ -319,7 +317,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       out.print("<body>");
       try {
         // Apply updated trace configuration based on query parameters
-        applyTraceConfig(out, queryMap);
+        applyTraceConfig(queryMap);
         emitHtmlBody(out);
       } catch (Throwable t) {
         out.print("Error while generating HTML: " + t.toString());

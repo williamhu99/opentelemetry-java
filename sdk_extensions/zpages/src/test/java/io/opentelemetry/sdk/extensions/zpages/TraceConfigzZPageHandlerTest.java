@@ -159,7 +159,6 @@ public final class TraceConfigzZPageHandlerTest {
         new TraceConfigzZPageHandler(tracerProvider);
     traceConfigzZPageHandler.emitHtml(queryMap, output);
 
-    assertThat(output.toString()).contains("<meta");
     assertThat(tracerProvider.getActiveTraceConfig().getSampler().getDescription())
         .isEqualTo(
             Samplers.probability(Double.parseDouble(newSamplingProbability)).getDescription());
@@ -186,7 +185,6 @@ public final class TraceConfigzZPageHandlerTest {
         new TraceConfigzZPageHandler(tracerProvider);
     traceConfigzZPageHandler.emitHtml(queryMap, output);
 
-    assertThat(output.toString()).contains("<meta");
     assertThat(tracerProvider.getActiveTraceConfig().getSampler().getDescription())
         .isEqualTo(TraceConfig.getDefault().getSampler().getDescription());
     assertThat(tracerProvider.getActiveTraceConfig().getMaxNumberOfAttributes())
