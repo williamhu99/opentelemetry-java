@@ -90,6 +90,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setPrintStream(out)
         .setRowName("SamplingProbability to")
         .setParamName(QUERY_STRING_SAMPLING_PROBABILITY)
+        .setInputPlaceHolder("[0.0 - 1.0]")
         .setParamDefaultValue(TraceConfig.getDefault().getSampler().getDescription())
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)

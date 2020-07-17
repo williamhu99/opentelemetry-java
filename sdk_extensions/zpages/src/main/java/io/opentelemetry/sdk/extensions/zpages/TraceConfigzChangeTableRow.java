@@ -23,6 +23,7 @@ final class TraceConfigzChangeTableRow {
   private final PrintStream out;
   private final String rowName;
   private final String paramName;
+  private final String inputPlaceholder;
   private final String defaultValue;
   private final String zebraStripeColor;
   private final boolean zebraStripe;
@@ -31,6 +32,7 @@ final class TraceConfigzChangeTableRow {
     out = builder.out;
     rowName = builder.rowName;
     paramName = builder.paramName;
+    inputPlaceholder = builder.inputPlaceholder;
     defaultValue = builder.defaultValue;
     zebraStripeColor = builder.zebraStripeColor;
     zebraStripe = builder.zebraStripe;
@@ -40,6 +42,7 @@ final class TraceConfigzChangeTableRow {
     private PrintStream out;
     private String rowName;
     private String paramName;
+    private String inputPlaceholder = "";
     private String defaultValue;
     private String zebraStripeColor;
     private boolean zebraStripe;
@@ -79,6 +82,17 @@ final class TraceConfigzChangeTableRow {
      */
     public Builder setParamName(String paramName) {
       this.paramName = paramName;
+      return this;
+    }
+
+    /**
+     * Set the placeholder of the input element.
+     *
+     * @param inputPlaceholder the value of the placeholder.
+     * @return the {@link Builder}.
+     */
+    public Builder setInputPlaceHolder(String inputPlaceholder) {
+      this.inputPlaceholder = inputPlaceholder;
       return this;
     }
 
@@ -131,7 +145,9 @@ final class TraceConfigzChangeTableRow {
     out.print(
         "<td class=\"border-left-dark\"><input type=text size=15 name="
             + paramName
-            + " value=\"\" /></td>");
+            + " value=\"\" placeholder=\""
+            + inputPlaceholder
+            + "\" /></td>");
     out.print("<td class=\"border-left-dark\">(" + defaultValue + ")</td>");
     out.print("</tr>");
   }
