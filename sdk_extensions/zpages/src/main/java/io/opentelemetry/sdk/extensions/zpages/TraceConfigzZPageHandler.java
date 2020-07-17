@@ -217,11 +217,15 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   /**
    * Apply updated trace configuration through the tracerProvider based on query parameters.
    *
+   * @param out the {@link PrintStream} {@code out}.
    * @param queryMap the map containing URL query parameters.
    */
-  private void applyTraceConfig(Map<String, String> queryMap) {
+  private void applyTraceConfig(PrintStream out, Map<String, String> queryMap) {
     String action = queryMap.get(QUERY_STRING_ACTION);
-    if (action != null && action.equals(QUERY_STRING_ACTION_CHANGE)) {
+    if (action == null) {
+      return;
+    }
+    if (action.equals(QUERY_STRING_ACTION_CHANGE)) {
       TraceConfig.Builder newConfigBuilder = this.tracerProvider.getActiveTraceConfig().toBuilder();
       String samplingProbabilityStr = queryMap.get(QUERY_STRING_SAMPLING_PROBABILITY);
       if (!samplingProbabilityStr.isEmpty()) {
@@ -260,16 +264,16 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       TraceConfig defaultConfig = TraceConfig.getDefault().toBuilder().build();
       this.tracerProvider.updateActiveTraceConfig(defaultConfig);
     }
+    out.print("<meta http-equiv=\"refresh\" content=\"1; url='" + TRACE_CONFIGZ_URL + "'\" />");
   }
 
   /**
    * Emits HTML body content to the {@link PrintStream} {@code out}. Content emitted by this
    * function should be enclosed by <body></body> tag.
    *
-   * @param queryMap the map containing URL query parameters.
    * @param out the {@link PrintStream} {@code out}.
    */
-  private void emitHtmlBody(Map<String, String> queryMap, PrintStream out) {
+  private void emitHtmlBody(PrintStream out) {
     out.print(
         "<a href=\"/\"><img style=\"height: 90px;\" src=\"data:image/png;base64,"
             + ZPageLogo.getLogoBase64()
@@ -290,8 +294,6 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</form>");
     out.print("<h2>Active Tracing Parameters</h2>");
     emitActiveTable(out);
-    // Apply updated trace configuration based on query parameters
-    applyTraceConfig(queryMap);
   }
 
   @Override
@@ -316,7 +318,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       out.print("</head>");
       out.print("<body>");
       try {
-        emitHtmlBody(queryMap, out);
+        // Apply updated trace configuration based on query parameters
+        applyTraceConfig(out, queryMap);
+        emitHtmlBody(out);
       } catch (Throwable t) {
         out.print("Error while generating HTML: " + t.toString());
         logger.log(Level.WARNING, "error while generating HTML", t);
