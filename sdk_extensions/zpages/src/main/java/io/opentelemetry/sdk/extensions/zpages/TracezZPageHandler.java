@@ -18,6 +18,7 @@ package io.opentelemetry.sdk.extensions.zpages;
 
 import static com.google.common.html.HtmlEscapers.htmlEscaper;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.opentelemetry.common.AttributeValue;
 import io.opentelemetry.common.ReadableAttributes;
@@ -30,8 +31,6 @@ import io.opentelemetry.trace.Status.CanonicalCode;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -179,13 +178,12 @@ final class TracezZPageHandler extends ZPageHandler {
    * @param subtype the sub-type of the corresponding span (latency [0, 8], error [0, 15]).
    */
   private static void emitSummaryTableCell(
-      PrintStream out, String spanName, int numOfSamples, SampleType type, int subtype)
-      throws UnsupportedEncodingException {
+      PrintStream out, String spanName, int numOfSamples, SampleType type, int subtype) {
     // If numOfSamples is greater than 0, emit a link to see detailed span information
     // If numOfSamples is smaller than 0, print the text "N/A", otherwise print the text "0"
     if (numOfSamples > 0) {
       out.print("<td class=\"align-center border-left-dark\"><a href=\"?");
-      out.print(PARAM_SPAN_NAME + "=" + URLEncoder.encode(spanName, "UTF-8"));
+      out.print(PARAM_SPAN_NAME + "=" + spanName);
       out.print("&" + PARAM_SAMPLE_TYPE + "=" + type.getValue());
       out.print("&" + PARAM_SAMPLE_SUB_TYPE + "=" + subtype);
       out.print("\">" + numOfSamples + "</a></td>");
@@ -202,7 +200,7 @@ final class TracezZPageHandler extends ZPageHandler {
    *
    * @param out the {@link PrintStream} {@code out}.
    */
-  private void emitSummaryTable(PrintStream out) throws UnsupportedEncodingException {
+  private void emitSummaryTable(PrintStream out) {
     if (dataAggregator == null) {
       return;
     }
@@ -458,8 +456,7 @@ final class TracezZPageHandler extends ZPageHandler {
    * @param queryMap the map containing URL query parameters.s
    * @param out the {@link PrintStream} {@code out}.
    */
-  private void emitHtmlBody(Map<String, String> queryMap, PrintStream out)
-      throws UnsupportedEncodingException {
+  private void emitHtmlBody(Map<String, String> queryMap, PrintStream out) {
     if (dataAggregator == null) {
       out.print("OpenTelemetry implementation not available.");
       return;
@@ -473,9 +470,6 @@ final class TracezZPageHandler extends ZPageHandler {
     // spanName will be null if the query parameter doesn't exist in the URL
     String spanName = queryMap.get(PARAM_SPAN_NAME);
     if (spanName != null) {
-      spanName = URLEncoder.encode(spanName, "UTF-8");
-      // Convert spanName with URL encoding
-      spanName = URLEncoder.encode(spanName, "UTF-8");
       // Show detailed information for the corresponding span
       String typeStr = queryMap.get(PARAM_SAMPLE_TYPE);
       if (typeStr != null) {
@@ -487,7 +481,6 @@ final class TracezZPageHandler extends ZPageHandler {
         } else if (type == SampleType.RUNNING) {
           // Display running span
           spans = dataAggregator.getRunningSpans(spanName);
-          Collections.sort(spans, new SpanDataComparator(/* incremental= */ true));
         } else {
           String subtypeStr = queryMap.get(PARAM_SAMPLE_SUB_TYPE);
           if (subtypeStr != null) {
@@ -500,20 +493,17 @@ final class TracezZPageHandler extends ZPageHandler {
               // Display latency based span
               LatencyBoundary latencyBoundary = LatencyBoundary.values()[subtype];
               spans =
-                  new ArrayList<>(
-                      dataAggregator.getOkSpans(
-                          spanName,
-                          latencyBoundary.getLatencyLowerBound(),
-                          latencyBoundary.getLatencyUpperBound()));
-              Collections.sort(spans, new SpanDataComparator(/* incremental= */ false));
+                  dataAggregator.getOkSpans(
+                      spanName,
+                      latencyBoundary.getLatencyLowerBound(),
+                      latencyBoundary.getLatencyUpperBound());
             } else {
               if (subtype < 0 || subtype >= CanonicalCode.values().length) {
                 // N/A or out-of-bound cueck for error based subtype, valid values: [0, 15]
                 return;
               }
               // Display error based span
-              spans = new ArrayList<>(dataAggregator.getErrorSpans(spanName));
-              Collections.sort(spans, new SpanDataComparator(/* incremental= */ false));
+              spans = dataAggregator.getErrorSpans(spanName);
             }
           }
         }
@@ -522,6 +512,8 @@ final class TracezZPageHandler extends ZPageHandler {
 
         if (spans != null) {
           Formatter formatter = new Formatter(out, Locale.US);
+          spans =
+              ImmutableList.sortedCopyOf(new SpanDataComparator(/* incremental= */ true), spans);
           emitSpanDetails(out, formatter, spans);
         }
       }

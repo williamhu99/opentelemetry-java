@@ -37,11 +37,14 @@ public class App
     // Add a single Span.
     Tracer tracer =
         OpenTelemetrySdk.getTracerProvider().get("otelexample");
-    Span span = tracer.spanBuilder("foo").startSpan();
+    Span span = tracer.spanBuilder("foo bar").startSpan();
     // span.addEvent("operation.request_started", Attributes.of("id", AttributeValue.stringAttributeValue("XYZ")));
     span.addEvent("operation.request_started");
     span.setAttribute("operation.id", 7);
     span.setAttribute("operation.name", "app");
+
+    span = tracer.spanBuilder("foo bar").startSpan();
+    span.end();
 
     // Set it as the current Span.
     try (Scope scope = tracer.withSpan(span)) {
