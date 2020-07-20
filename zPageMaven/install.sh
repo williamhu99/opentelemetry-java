@@ -1,0 +1,1 @@
+~/apache-maven-3.6.3/bin/mvn install:install-file -Dfile=opentelemetry-sdk-extension-zpages-0.7.0-SNAPSHOT.jar -DgroupId=io.opentelemetry -DartifactId=opentelemetry-sdk-extension-zpages -Dversion=0.7.0-SNAPSHOT -Dpackaging=jar

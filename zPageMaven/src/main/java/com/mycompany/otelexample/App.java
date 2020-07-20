@@ -98,6 +98,15 @@ public class App
     span = tracer.spanBuilder("{foo/bar}").startSpan();
     span.end();
 
+    span = tracer.spanBuilder("foo + bar").startSpan();
+    // span.addEvent("operation.request_started", Attributes.of("id", AttributeValue.stringAttributeValue("XYZ")));
+    span.addEvent("operation.request_started");
+    span.setAttribute("operation.id", 7);
+    span.setAttribute("operation.name", "app");
+
+    span = tracer.spanBuilder("foo + bar").startSpan();
+    span.end();
+
     spanProcessor.shutdown();
   }
 }
