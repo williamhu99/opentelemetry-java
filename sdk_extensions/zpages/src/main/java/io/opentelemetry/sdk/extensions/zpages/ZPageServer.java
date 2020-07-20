@@ -150,6 +150,7 @@ public final class ZPageServer {
     // For future zPages, register them to the server in here
     registerIndexZPageHandler(server);
     registerTracezZPageHandler(server);
+    registerTraceConfigzZPageHandler(server);
   }
 
   /** Method for stopping the {@link HttpServer} {@code server}. */

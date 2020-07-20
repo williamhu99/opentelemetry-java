@@ -21,13 +21,16 @@ import io.opentelemetry.sdk.trace.TracerSdkProvider;
 import io.opentelemetry.sdk.trace.config.TraceConfig;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 final class TraceConfigzZPageHandler extends ZPageHandler {
   private static final String TRACE_CONFIGZ_URL = "/traceconfigz";
+  private static final String TRACE_CONFIGZ_NAME = "TraceConfigZ";
+  private static final String TRACE_CONFIGZ_DESCRIPTION =
+      "TraceConfigZ displays information about the current active tracing configuration"
+          + " and allows users to change it";
   private static final String QUERY_STRING_ACTION = "action";
   private static final String QUERY_STRING_ACTION_CHANGE = "change";
   private static final String QUERY_STRING_ACTION_DEFAULT = "default";
@@ -51,6 +54,16 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
   @Override
   public String getUrlPath() {
     return TRACE_CONFIGZ_URL;
+  }
+
+  @Override
+  public String getPageName() {
+    return TRACE_CONFIGZ_NAME;
+  }
+
+  @Override
+  public String getPageDescription() {
+    return TRACE_CONFIGZ_DESCRIPTION;
   }
 
   /**
@@ -81,6 +94,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         .setPrintStream(out)
         .setRowName("SamplingProbability to")
         .setParamName(QUERY_STRING_SAMPLING_PROBABILITY)
+        .setInputPlaceHolder("[0.0, 1.0]")
         .setParamDefaultValue(TraceConfig.getDefault().getSampler().getDescription())
         .setZebraStripeColor(ZEBRA_STRIPE_COLOR)
         .setZebraStripe(false)
@@ -212,37 +226,40 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    */
   private void applyTraceConfig(Map<String, String> queryMap) {
     String action = queryMap.get(QUERY_STRING_ACTION);
+    if (action == null) {
+      return;
+    }
     if (action.equals(QUERY_STRING_ACTION_CHANGE)) {
       TraceConfig.Builder newConfigBuilder = this.tracerProvider.getActiveTraceConfig().toBuilder();
       String samplingProbabilityStr = queryMap.get(QUERY_STRING_SAMPLING_PROBABILITY);
-      if (!samplingProbabilityStr.isEmpty()) {
+      if (samplingProbabilityStr != null && !samplingProbabilityStr.isEmpty()) {
         double samplingProbability = Double.parseDouble(samplingProbabilityStr);
         newConfigBuilder.setSampler(Samplers.probability(samplingProbability));
       }
       String maxNumOfAttributesStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES);
-      if (!maxNumOfAttributesStr.isEmpty()) {
+      if (maxNumOfAttributesStr != null && !maxNumOfAttributesStr.isEmpty()) {
         int maxNumOfAttributes = Integer.parseInt(maxNumOfAttributesStr);
         newConfigBuilder.setMaxNumberOfAttributes(maxNumOfAttributes);
       }
       String maxNumOfEventsStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_EVENTS);
-      if (!maxNumOfEventsStr.isEmpty()) {
+      if (maxNumOfEventsStr != null && !maxNumOfEventsStr.isEmpty()) {
         int maxNumOfEvents = Integer.parseInt(maxNumOfEventsStr);
         newConfigBuilder.setMaxNumberOfEvents(maxNumOfEvents);
       }
       String maxNumOfLinksStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_LINKS);
-      if (!maxNumOfLinksStr.isEmpty()) {
+      if (maxNumOfLinksStr != null && !maxNumOfLinksStr.isEmpty()) {
         int maxNumOfLinks = Integer.parseInt(maxNumOfLinksStr);
         newConfigBuilder.setMaxNumberOfLinks(maxNumOfLinks);
       }
       String maxNumOfAttributesPerEventStr =
           queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT);
-      if (!maxNumOfAttributesPerEventStr.isEmpty()) {
+      if (maxNumOfAttributesPerEventStr != null && !maxNumOfAttributesPerEventStr.isEmpty()) {
         int maxNumOfAttributesPerEvent = Integer.parseInt(maxNumOfAttributesPerEventStr);
         newConfigBuilder.setMaxNumberOfAttributesPerEvent(maxNumOfAttributesPerEvent);
       }
       String maxNumOfAttributesPerLinkStr =
           queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT);
-      if (!maxNumOfAttributesPerLinkStr.isEmpty()) {
+      if (maxNumOfAttributesPerLinkStr != null && !maxNumOfAttributesPerLinkStr.isEmpty()) {
         int maxNumOfAttributesPerLink = Integer.parseInt(maxNumOfAttributesPerLinkStr);
         newConfigBuilder.setMaxNumberOfAttributesPerLink(maxNumOfAttributesPerLink);
       }
@@ -257,11 +274,9 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
    * Emits HTML body content to the {@link PrintStream} {@code out}. Content emitted by this
    * function should be enclosed by <body></body> tag.
    *
-   * @param queryMap the map containing URL query parameters.
    * @param out the {@link PrintStream} {@code out}.
    */
-  private void emitHtmlBody(Map<String, String> queryMap, PrintStream out)
-      throws UnsupportedEncodingException {
+  private void emitHtmlBody(PrintStream out) {
     out.print(
         "<img style=\"height: 90px;\" src=\"data:image/png;base64,"
             + ZPageLogo.getLogoBase64()
@@ -282,8 +297,6 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
     out.print("</form>");
     out.print("<h2>Active Tracing Parameters</h2>");
     emitActiveTable(out);
-    // Apply updated trace configuration based on query parameters
-    applyTraceConfig(queryMap);
   }
 
   @Override
@@ -303,12 +316,14 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
               + "rel=\"stylesheet\">");
       out.print(
           "<link href=\"https://fonts.googleapis.com/css?family=Roboto\" rel=\"stylesheet\">");
-      out.print("<title>TraceConfigZ</title>");
+      out.print("<title>" + TRACE_CONFIGZ_NAME + "</title>");
       emitHtmlStyle(out);
       out.print("</head>");
       out.print("<body>");
       try {
-        emitHtmlBody(queryMap, out);
+        // Apply updated trace configuration based on query parameters
+        applyTraceConfig(queryMap);
+        emitHtmlBody(out);
       } catch (Throwable t) {
         out.print("Error while generating HTML: " + t.toString());
         logger.log(Level.WARNING, "error while generating HTML", t);
