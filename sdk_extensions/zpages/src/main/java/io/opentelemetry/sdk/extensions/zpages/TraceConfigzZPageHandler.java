@@ -234,7 +234,13 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
       String samplingProbabilityStr = queryMap.get(QUERY_STRING_SAMPLING_PROBABILITY);
       if (samplingProbabilityStr != null && !samplingProbabilityStr.isEmpty()) {
         double samplingProbability = Double.parseDouble(samplingProbabilityStr);
-        newConfigBuilder.setSampler(Samplers.probability(samplingProbability));
+        if (samplingProbability == 0) {
+          newConfigBuilder.setSampler(Samplers.alwaysOff());
+        } else if (samplingProbability == 1) {
+          newConfigBuilder.setSampler(Samplers.alwaysOn());
+        } else {
+          newConfigBuilder.setSampler(Samplers.probability(samplingProbability));
+        }
       }
       String maxNumOfAttributesStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES);
       if (maxNumOfAttributesStr != null && !maxNumOfAttributesStr.isEmpty()) {
