@@ -76,9 +76,9 @@ public final class ZPageServer {
   // Handler for /traceconfigz page
   private static final ZPageHandler traceConfigzZPageHandler =
       new TraceConfigzZPageHandler(tracerProvider);
-  // Handler for index page, **please include all available zPages in the constructor**
+  // Handler for index page, **please include all available ZPageHandlers in the constructor**
   private static final ZPageHandler indexZPageHandler =
-      new IndexZPageHandler(ImmutableList.of(tracezZPageHandler));
+      new IndexZPageHandler(ImmutableList.of(tracezZPageHandler, traceConfigzZPageHandler));
 
   private static final Object mutex = new Object();
   private static final AtomicBoolean isTracezSpanProcesserAdded = new AtomicBoolean(false);
