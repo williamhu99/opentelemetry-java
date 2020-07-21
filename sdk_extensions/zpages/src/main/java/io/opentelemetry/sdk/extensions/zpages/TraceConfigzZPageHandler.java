@@ -68,7 +68,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
 
   /**
    * Emits CSS styles to the {@link PrintStream} {@code out}. Content emited by this function should
-   * be enclosed by <head></head> tag. s
+   * be enclosed by <head></head> tag.
    *
    * @param out the {@link PrintStream} {@code out}.
    */
@@ -270,7 +270,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
         newConfigBuilder.setMaxNumberOfAttributesPerLink(maxNumOfAttributesPerLink);
       }
       this.tracerProvider.updateActiveTraceConfig(newConfigBuilder.build());
-    } else if (action != null && action.equals(QUERY_STRING_ACTION_DEFAULT)) {
+    } else if (action.equals(QUERY_STRING_ACTION_DEFAULT)) {
       TraceConfig defaultConfig = TraceConfig.getDefault().toBuilder().build();
       this.tracerProvider.updateActiveTraceConfig(defaultConfig);
     }
