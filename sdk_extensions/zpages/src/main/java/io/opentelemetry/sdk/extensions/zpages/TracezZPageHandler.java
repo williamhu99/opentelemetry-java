@@ -475,7 +475,7 @@ final class TracezZPageHandler extends ZPageHandler {
     String spanName = queryMap.get(PARAM_SPAN_NAME);
     if (spanName != null) {
       // Convert spanName with URL encoding
-      spanName = URLDecoder.decode(spanName, "UTF-8").replace(/* Unicode for + */ "%2B", "+");
+      spanName = URLDecoder.decode(spanName, "UTF-8");
       // Show detailed information for the corresponding span
       String typeStr = queryMap.get(PARAM_SAMPLE_TYPE);
       if (typeStr != null) {
