@@ -354,7 +354,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           }
         } catch (NumberFormatException e) {
           throw new NumberFormatException(
-              e.toString() + " SamplingProbability must be of the type double");
+              e.getMessage() + ", SamplingProbability must be of the type double");
         }
       }
       String maxNumOfAttributesStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES);
@@ -364,7 +364,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           newConfigBuilder.setMaxNumberOfAttributes(maxNumOfAttributes);
         } catch (NumberFormatException e) {
           throw new NumberFormatException(
-              e.toString() + " MaxNumOfAttributes must be of the type integer");
+              e.getMessage() + ", MaxNumOfAttributes must be of the type integer");
         }
       }
       String maxNumOfEventsStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_EVENTS);
@@ -374,7 +374,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           newConfigBuilder.setMaxNumberOfEvents(maxNumOfEvents);
         } catch (NumberFormatException e) {
           throw new NumberFormatException(
-              e.toString() + " MaxNumOfEvents must be of the type integer");
+              e.getMessage() + ", MaxNumOfEvents must be of the type integer");
         }
       }
       String maxNumOfLinksStr = queryMap.get(QUERY_STRING_MAX_NUM_OF_LINKS);
@@ -384,7 +384,7 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           newConfigBuilder.setMaxNumberOfLinks(maxNumOfLinks);
         } catch (NumberFormatException e) {
           throw new NumberFormatException(
-              e.toString() + " MaxNumOfLinks must be of the type integer");
+              e.getMessage() + ", MaxNumOfLinks must be of the type integer");
         }
       }
       String maxNumOfAttributesPerEventStr =
@@ -395,18 +395,18 @@ final class TraceConfigzZPageHandler extends ZPageHandler {
           newConfigBuilder.setMaxNumberOfAttributesPerEvent(maxNumOfAttributesPerEvent);
         } catch (NumberFormatException e) {
           throw new NumberFormatException(
-              e.toString() + " MaxNumOfAttributesPerEvent must be of the type integer");
+              e.getMessage() + ", MaxNumOfAttributesPerEvent must be of the type integer");
         }
       }
       String maxNumOfAttributesPerLinkStr =
-          queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_EVENT);
+          queryMap.get(QUERY_STRING_MAX_NUM_OF_ATTRIBUTES_PER_LINK);
       if (maxNumOfAttributesPerLinkStr != null) {
         try {
           int maxNumOfAttributesPerLink = Integer.parseInt(maxNumOfAttributesPerLinkStr);
           newConfigBuilder.setMaxNumberOfAttributesPerLink(maxNumOfAttributesPerLink);
         } catch (NumberFormatException e) {
           throw new NumberFormatException(
-              e.toString() + " MaxNumOfAttributesPerLink must be of the type integer");
+              e.getMessage() + ", MaxNumOfAttributesPerLink must be of the type integer");
         }
       }
       this.tracerProvider.updateActiveTraceConfig(newConfigBuilder.build());
