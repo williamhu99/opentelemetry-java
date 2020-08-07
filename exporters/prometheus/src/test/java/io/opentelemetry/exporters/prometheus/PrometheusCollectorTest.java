@@ -16,7 +16,7 @@
 
 package io.opentelemetry.exporters.prometheus;
 
-import static com.google.common.truth.Truth.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
@@ -33,28 +33,24 @@ import io.prometheus.client.exporter.common.TextFormat;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-/** Unit tests for {@link MetricAdapter}. */
-@RunWith(JUnit4.class)
-public class PrometheusCollectorTest {
+class PrometheusCollectorTest {
   @Mock MetricProducer metricProducer;
   PrometheusCollector prometheusCollector;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     MockitoAnnotations.initMocks(this);
     prometheusCollector =
         PrometheusCollector.newBuilder().setMetricProducer(metricProducer).buildAndRegister();
   }
 
   @Test
-  public void registerToDefault() throws IOException {
+  void registerToDefault() throws IOException {
     when(metricProducer.collectAllMetrics()).thenReturn(generateTestData());
     StringWriter stringWriter = new StringWriter();
     TextFormat.write004(stringWriter, CollectorRegistry.defaultRegistry.metricFamilySamples());
@@ -72,7 +68,7 @@ public class PrometheusCollectorTest {
     return ImmutableList.of(
         MetricData.create(
             Descriptor.create(
-                "name",
+                "grpc.name",
                 "long_description",
                 "1",
                 Descriptor.Type.MONOTONIC_LONG,
@@ -83,7 +79,7 @@ public class PrometheusCollectorTest {
                 MetricData.LongPoint.create(123, 456, Labels.of("kp", "vp"), 5))),
         MetricData.create(
             Descriptor.create(
-                "name",
+                "http.name",
                 "double_description",
                 "1",
                 Descriptor.Type.MONOTONIC_DOUBLE,
