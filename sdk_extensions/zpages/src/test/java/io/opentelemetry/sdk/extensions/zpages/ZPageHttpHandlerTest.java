@@ -41,5 +41,7 @@ public final class ZPageHttpHandlerTest {
     String queryString = "zspanname=Test&ztype=1&zsubtype=5&noval";
     assertThat(ZPageHttpHandler.parseQueryMap(uri))
         .containsOnly(entry("zspanname", "Test"), entry("ztype", "1"), entry("zsubtype", "5"));
+    assertThat(ZPageHttpHandler.parseQueryMap(queryString))
+        .containsOnly(entry("zspanname", "Test"), entry("ztype", "1"), entry("zsubtype", "5"));
   }
 }

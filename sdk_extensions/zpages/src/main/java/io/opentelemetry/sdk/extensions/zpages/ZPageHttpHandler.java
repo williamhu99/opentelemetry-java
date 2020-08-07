@@ -75,7 +75,7 @@ final class ZPageHttpHandler implements HttpHandler {
   }
 
   /**
-   * Build a query map from the queryString.
+   * Build a query map from the query string.
    *
    * @param queryString the query string for buiding the query map
    * @return the query map built based on the query string
